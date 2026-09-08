@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar CG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,440;9..144,560;9..144,650&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#EDEEEA; --surface:#FFFFFF; --surface-2:#F5F5F0; --surface-3:#EAEBE4;
+  --ink:#1A1C19; --ink-soft:#5B5F57; --ink-faint:#8B8F84;
+  --line:#DBDCD3; --line-strong:#C7C9BD;
+  --accent:#A6631F; --accent-ink:#7A480F; --accent-soft:#F1E4D2; --accent-soft-line:#E3CFA9;
+  --hot:#B23A2A; --hot-soft:#FBE7E3; --hot-line:#EEC3B9;
+  --warm:#A87418; --warm-soft:#F7EFD8; --warm-line:#E8D6A0;
+  --backup:#6F756A; --backup-soft:#E9EAE3; --backup-line:#D3D5C9;
+  --good:#3E7D4C; --good-soft:#E3F0E4;
+  --shadow: 0 1px 2px rgba(26,28,25,.04), 0 8px 24px -12px rgba(26,28,25,.18);
+  --radius: 10px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16170F; --surface:#1D1F16; --surface-2:#23251B; --surface-3:#2A2C20;
+    --ink:#ECEDE3; --ink-soft:#AEB2A2; --ink-faint:#7D8172;
+    --line:#33362A; --line-strong:#40432F;
+    --accent:#D6934D; --accent-ink:#F0B876; --accent-soft:#3A2C18; --accent-soft-line:#59431F;
+    --hot:#E07A64; --hot-soft:#3B211B; --hot-line:#5C3226;
+    --warm:#E0B450; --warm-soft:#3A2E15; --warm-line:#5A461D;
+    --backup:#9CA191; --backup-soft:#262820; --backup-line:#383B2E;
+    --good:#7FC08D; --good-soft:#1E2E1F;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16170F; --surface:#1D1F16; --surface-2:#23251B; --surface-3:#2A2C20;
+  --ink:#ECEDE3; --ink-soft:#AEB2A2; --ink-faint:#7D8172;
+  --line:#33362A; --line-strong:#40432F;
+  --accent:#D6934D; --accent-ink:#F0B876; --accent-soft:#3A2C18; --accent-soft-line:#59431F;
+  --hot:#E07A64; --hot-soft:#3B211B; --hot-line:#5C3226;
+  --warm:#E0B450; --warm-soft:#3A2E15; --warm-line:#5A461D;
+  --backup:#9CA191; --backup-soft:#262820; --backup-line:#383B2E;
+  --good:#7FC08D; --good-soft:#1E2E1F;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+*{box-sizing:border-box;}
+body{ margin:0; background:var(--bg); color:var(--ink); font-family:"IBM Plex Sans",system-ui,sans-serif; font-size:14px; line-height:1.5; }
+img{ max-width:100%; }
+.mono{ font-family:"IBM Plex Mono",ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+.display{ font-family:"Fraunces",Georgia,serif; }
+h1,h2,h3,h4{ text-wrap:balance; margin:0; }
+a{ color:inherit; }
+button{ font-family:inherit; }
+
+.shell{ max-width:1360px; margin:0 auto; padding:28px 32px 80px; }
+
+/* header */
+.topbar{ display:flex; align-items:baseline; justify-content:space-between; gap:24px; margin-bottom:22px; flex-wrap:wrap; }
+.brand{ display:flex; align-items:baseline; gap:12px; }
+.brand-mark{ font-family:"Fraunces",serif; font-weight:650; font-size:26px; letter-spacing:-0.01em; }
+.brand-mark .dot{ color:var(--accent); }
+.brand-sub{ color:var(--ink-faint); font-size:12.5px; letter-spacing:.02em; }
+.meta-line{ color:var(--ink-faint); font-size:12.5px; text-align:right; }
+.meta-line b{ color:var(--ink-soft); font-weight:600; }
+
+/* KPI strip */
+.kpi-row{ display:grid; grid-template-columns:1.35fr repeat(5,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:26px; }
+.kpi{ background:var(--surface); padding:14px 16px; display:flex; flex-direction:column; gap:6px; justify-content:center; min-height:74px; }
+.kpi-num{ font-family:"Fraunces",serif; font-weight:600; font-size:26px; line-height:1; letter-spacing:-0.01em; }
+.kpi-label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); }
+.kpi.spotlight{ background:linear-gradient(180deg,var(--accent-soft),var(--surface) 130%); }
+.kpi.spotlight .kpi-name{ font-family:"Fraunces",serif; font-weight:600; font-size:17px; margin-top:1px; }
+.kpi.spotlight .kpi-score{ color:var(--accent-ink); }
+
+/* filters */
+.filters{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--line); }
+.fgroup{ display:flex; align-items:center; gap:6px; margin-right:6px; }
+.fgroup-label{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint); margin-right:2px; }
+.chip{ border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); border-radius:100px; padding:5px 12px; font-size:12.5px; cursor:pointer; transition:.12s; white-space:nowrap; }
+.chip:hover{ border-color:var(--line-strong); color:var(--ink); }
+.chip.active{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+:root[data-theme="dark"] .chip.active, @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .chip.active{ background:var(--accent); color:#1A1206; border-color:var(--accent);} }
+.select{ border:1px solid var(--line); background:var(--surface); color:var(--ink); border-radius:8px; padding:6px 10px; font-size:12.5px; font-family:inherit; }
+.spacer{ flex:1; }
+.sortbar{ display:flex; align-items:center; gap:8px; }
+
+/* section headings */
+.section-head{ display:flex; align-items:baseline; gap:10px; margin:8px 0 14px; }
+.section-head h2{ font-family:"Fraunces",serif; font-weight:600; font-size:19px; }
+.section-count{ color:var(--ink-faint); font-size:12.5px; }
+
+/* grid of cards */
+.grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(322px,1fr)); gap:14px; margin-bottom:34px; }
+
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 16px 14px; display:flex; flex-direction:column; gap:11px; cursor:pointer; transition:.12s border-color, .12s transform; box-shadow:var(--shadow); }
+.card:hover{ border-color:var(--line-strong); }
+.card:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+.card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+.card-id{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.card-name{ font-weight:600; font-size:15px; letter-spacing:-.005em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.card-niche{ color:var(--ink-faint); font-size:12px; }
+.card-score{ display:flex; flex-direction:column; align-items:flex-end; gap:2px; flex-shrink:0; }
+.score-num{ font-family:"Fraunces",serif; font-weight:650; font-size:24px; line-height:1; }
+.score-max{ font-size:11px; color:var(--ink-faint); }
+
+.badge-row{ display:flex; gap:6px; flex-wrap:wrap; }
+.badge{ font-size:11px; padding:3px 8px; border-radius:100px; font-weight:600; letter-spacing:.01em; border:1px solid transparent; }
+.badge.tier-hot{ background:var(--hot-soft); color:var(--hot); border-color:var(--hot-line); }
+.badge.tier-warm{ background:var(--warm-soft); color:var(--warm); border-color:var(--warm-line); }
+.badge.tier-backup{ background:var(--backup-soft); color:var(--backup); border-color:var(--backup-line); }
+.badge.site-none{ background:var(--good-soft); color:var(--good); }
+.badge.site-weak{ background:var(--warm-soft); color:var(--warm); }
+.badge.ticket{ background:var(--accent-soft); color:var(--accent-ink); border-color:var(--accent-soft-line); }
+
+.card-phone{ display:flex; align-items:center; gap:7px; text-decoration:none; background:var(--accent-soft); border:1px solid var(--accent-soft-line); color:var(--accent-ink); border-radius:7px; padding:6px 10px; font-size:13px; font-weight:600; }
+.card-phone:hover{ border-color:var(--accent); }
+.card-phone .call-hint{ margin-left:auto; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; opacity:.75; }
+.card-phone--empty{ background:var(--surface-2); border:1px dashed var(--line); color:var(--ink-faint); font-size:12px; font-weight:500; padding:6px 10px; border-radius:7px; }
+.card-row{ display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--ink-soft); }
+.card-row b{ color:var(--ink); font-weight:600; }
+
+.card-pain{ font-size:12.5px; color:var(--ink-soft); border-top:1px dashed var(--line); padding-top:10px; }
+.card-pain b{ display:block; color:var(--ink); font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:3px; font-weight:600; }
+.card-offer{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; }
+.offer-tag{ font-size:12px; font-weight:600; color:var(--accent-ink); }
+.status-pill{ font-size:11px; padding:3px 9px; border-radius:100px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-soft); }
+
+/* backup accordion */
+.backup-toggle{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; cursor:pointer; margin-bottom:14px; }
+.backup-toggle h2{ font-family:"Fraunces",serif; font-size:16px; font-weight:600; }
+.backup-toggle .hint{ color:var(--ink-faint); font-size:12.5px; }
+.chevron{ margin-left:auto; transition:transform .15s; color:var(--ink-faint); }
+.backup-toggle[aria-expanded="true"] .chevron{ transform:rotate(90deg); }
+.backup-wrap{ display:none; }
+.backup-wrap.open{ display:block; }
+.backup-card{ border-left:3px solid var(--backup); }
+.backup-note{ font-size:12px; color:var(--backup); background:var(--backup-soft); border-radius:6px; padding:7px 9px; margin-top:2px; }
+
+/* detail panel */
+.overlay{ position:fixed; inset:0; background:rgba(15,16,11,.42); backdrop-filter:blur(1px); display:none; z-index:40; }
+.overlay.open{ display:block; }
+.panel{ position:fixed; top:0; right:0; height:100%; width:min(560px,100%); background:var(--surface); border-left:1px solid var(--line); z-index:41; transform:translateX(100%); transition:transform .22s ease; overflow-y:auto; box-shadow:-16px 0 40px -20px rgba(0,0,0,.35); }
+.panel.open{ transform:translateX(0); }
+.panel-head{ position:sticky; top:0; background:var(--surface); border-bottom:1px solid var(--line); padding:18px 22px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; z-index:2; }
+.panel-close{ background:var(--surface-2); border:1px solid var(--line); border-radius:8px; width:30px; height:30px; cursor:pointer; color:var(--ink-soft); font-size:16px; line-height:1; flex-shrink:0; }
+.panel-close:hover{ color:var(--ink); }
+.panel-title{ display:flex; flex-direction:column; gap:4px; }
+.panel-title h3{ font-family:"Fraunces",serif; font-weight:650; font-size:21px; }
+.panel-body{ padding:6px 22px 32px; }
+.pblock{ padding:16px 0; border-bottom:1px solid var(--line); }
+.pblock:last-child{ border-bottom:none; }
+.pblock h4{ font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-faint); margin-bottom:10px; font-weight:600; }
+.kv{ display:grid; grid-template-columns:110px 1fr; gap:6px 10px; font-size:13px; margin-bottom:5px; }
+.kv .k{ color:var(--ink-faint); }
+.kv .v{ color:var(--ink); }
+.kv a{ color:var(--accent-ink); text-decoration:none; border-bottom:1px solid var(--accent-soft-line); }
+.score-bars{ display:flex; flex-direction:column; gap:7px; }
+.sbar-row{ display:grid; grid-template-columns:150px 1fr 32px; align-items:center; gap:8px; font-size:12px; }
+.sbar-track{ height:6px; background:var(--surface-3); border-radius:100px; overflow:hidden; }
+.sbar-fill{ height:100%; background:var(--accent); border-radius:100px; }
+.reason-box{ font-size:13px; color:var(--ink-soft); line-height:1.55; }
+.diag-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.diag-col h5{ font-size:11.5px; font-weight:600; margin-bottom:6px; }
+.diag-col.pos h5{ color:var(--good); }
+.diag-col.neg h5{ color:var(--hot); }
+.diag-col ul{ margin:0; padding-left:16px; font-size:12.5px; color:var(--ink-soft); }
+.diag-col li{ margin-bottom:4px; }
+.pain-card{ background:var(--surface-2); border-radius:8px; padding:12px 13px; font-size:13px; color:var(--ink); line-height:1.55; margin-bottom:10px; }
+.pain-card b{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); margin-bottom:5px; font-weight:600; }
+.offer-card{ background:var(--accent-soft); border:1px solid var(--accent-soft-line); border-radius:8px; padding:13px 14px; }
+.offer-card .offer-name{ font-family:"Fraunces",serif; font-weight:600; font-size:16px; color:var(--accent-ink); margin-bottom:6px; }
+.offer-card .offer-struct{ font-size:12.5px; color:var(--ink-soft); line-height:1.6; }
+.pitch-box{ background:var(--surface-2); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:13px 15px; font-size:13.5px; font-style:italic; color:var(--ink); line-height:1.6; }
+.obj{ margin-bottom:10px; }
+.obj .q{ font-size:12.5px; font-weight:600; color:var(--ink); margin-bottom:3px; }
+.obj .q:before{ content:"“"; }
+.obj .q:after{ content:"”"; }
+.obj .a{ font-size:12.5px; color:var(--ink-soft); padding-left:12px; border-left:2px solid var(--line); }
+.src-list{ display:flex; flex-wrap:wrap; gap:7px; }
+.src-chip{ font-size:11.5px; padding:4px 9px; border-radius:100px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-soft); text-decoration:none; }
+.src-chip:hover{ color:var(--accent-ink); border-color:var(--accent-soft-line); }
+.status-select{ width:100%; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:13px; font-family:inherit; }
+
+.footer-note{ margin-top:36px; padding-top:20px; border-top:1px solid var(--line); color:var(--ink-faint); font-size:12px; line-height:1.7; max-width:820px; }
+.footer-note b{ color:var(--ink-soft); }
+
+.empty{ color:var(--ink-faint); font-size:13px; padding:26px 4px; }
+
+@media (max-width:860px){
+  .shell{ padding:20px 16px 60px; }
+  .kpi-row{ grid-template-columns:repeat(2,1fr); }
+  .kpi.spotlight{ grid-column:1/-1; }
+  .diag-grid{ grid-template-columns:1fr; }
+  .panel{ width:100%; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">Radar<span class="dot">·</span>CG</div>
+      <div class="brand-sub">Prospecção de landing pages — Campo Grande / MS</div>
+    </div>
+    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>30 empresas com ficha completa (21 confirmadas ≥ 8/10, maioria com telefone verificado no Google Maps) · meta: 50</div>
+  </div>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div class="filters" id="filters">
+    <div class="fgroup">
+      <span class="fgroup-label">Nota</span>
+      <button class="chip active" data-f="score" data-v="8">8+</button>
+      <button class="chip" data-f="score" data-v="9">9+</button>
+      <button class="chip" data-f="score" data-v="10">10</button>
+    </div>
+    <div class="fgroup">
+      <span class="fgroup-label">Oferta</span>
+      <button class="chip active" data-f="offer" data-v="all">Todas</button>
+      <button class="chip" data-f="offer" data-v="Landing Page">Landing Page</button>
+      <button class="chip" data-f="offer" data-v="Catálogo Digital">Catálogo Digital</button>
+    </div>
+    <div class="fgroup">
+      <span class="fgroup-label">Ticket</span>
+      <button class="chip active" data-f="ticket" data-v="all">Todos</button>
+      <button class="chip" data-f="ticket" data-v="Alto">Alto</button>
+      <button class="chip" data-f="ticket" data-v="Altíssimo">Altíssimo</button>
+    </div>
+    <div class="fgroup">
+      <span class="fgroup-label">Nicho</span>
+      <select class="select" id="nicheSelect"><option value="all">Todos</option></select>
+    </div>
+    <div class="spacer"></div>
+    <div class="sortbar">
+      <span class="fgroup-label">Ordenar</span>
+      <select class="select" id="sortSelect">
+        <option value="score_desc">Maior nota</option>
+        <option value="ticket_desc">Maior ticket</option>
+        <option value="reviews_desc">Mais avaliações</option>
+        <option value="contact_desc">Mais fácil contato</option>
+        <option value="name_asc">Nome (A–Z)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <h2>Radar principal</h2>
+    <span class="section-count" id="mainCount"></span>
+  </div>
+  <div class="grid" id="mainGrid"></div>
+
+  <button class="backup-toggle" id="backupToggle" aria-expanded="false">
+    <h2>🗂 Em validação — quase lá</h2>
+    <span class="hint" id="backupHint"></span>
+    <span class="chevron">›</span>
+  </button>
+  <div class="backup-wrap" id="backupWrap">
+    <div class="grid" id="backupGrid"></div>
+  </div>
+
+  <div class="footer-note">
+    <b>Metodologia:</b> nota de 0 a 10 = potencial de compra (0–2) + necessidade de landing page (0–2) + ticket do serviço (0–2) + presença digital (0–1,5) + ausência de site próprio (0–1,5) + facilidade de contato direto (0–1). Só entram no radar principal empresas com nota ≥ 8 e evidência cruzada (Instagram, Google, diretórios, imprensa local) confirmando que a empresa fica em Campo Grande/MS e não possui site próprio — apenas Instagram, Facebook, diretórios ou marketplaces. Dado não confirmado nas fontes consultadas aparece como <i>"não encontrado"</i>, nunca como suposição. Esta é a Rodada 1: peço buscas adicionais a qualquer momento para ampliar o radar em direção às 50 empresas.
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <div class="panel-title">
+      <h3 id="pName">—</h3>
+      <span class="badge-row" id="pBadges"></span>
+    </div>
+    <button class="panel-close" id="pClose">✕</button>
+  </div>
+  <div class="panel-body" id="pBody"></div>
+</div>
+
+<script>
+const LEADS = [
+{
+  id:"jean-batista", tier:"hot", score:9.2, name:"Jean Batista — Corretor de Imóveis",
+  niche:"Imobiliário", subniche:"Corretor autônomo (médio/alto padrão)", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Alta", reviews:null,
+  address:"Rua Honória Correa, 308 — Tiradentes, Campo Grande/MS",
+  phone:"(67) 99234-5677", whatsapp:"(67) 99234-5677",
+  instagram:{handle:"@jeanbrava", followers:"23 mil"}, google:"Perfil de Google Business não localizado nas buscas",
+  site:"none", siteNote:"Nenhum site próprio identificado nas buscas realizadas — presença via Instagram, Facebook e diretório InfoImóveis.",
+  digital:"Instagram muito ativo (23 mil seguidores) com foco em imóveis de médio/alto padrão; listado no InfoImóveis desde nov/2021; CRECI 12131 confirmado.",
+  scoreBreak:{compra:1.7,lp:1.8,ticket:2.0,digital:1.3,semSite:1.5,contato:0.9},
+  pontosFortes:["Grande alcance no Instagram (23k) dentro do nicho certo","Atua com imóveis de médio/alto padrão — comissões altas","CRECI verificado, atuação consolidada"],
+  pontosFracos:["Sem prova de avaliações no Google","Depende só do Instagram/direct para captar contato"],
+  dor:"Tem 23 mil seguidores no Instagram, mas quem o encontra pelo Google não tem para onde ir — cai direto no perfil pessoal, sem filtro por bairro ou faixa de preço, e precisa mandar direct para qualquer informação.",
+  oportunidade:"Transformar buscas no Google por \"corretor de imóveis alto padrão Campo Grande\" e o próprio alcance do Instagram em uma vitrine com captação direta de leads compradores e vendedores.",
+  offerName:"Landing Page de Captação Imobiliária",
+  offerStruct:"Hero com proposta de valor + CRECI/anos de atuação → imóveis em destaque → sobre o corretor → depoimentos → formulário \"quero comprar\" / \"quero avaliar meu imóvel\" com CTA direto pro WhatsApp.",
+  pitch:"Jean, vi seu trabalho com imóveis de médio e alto padrão aqui em Campo Grande e o alcance que você tem no Instagram. Só que hoje quem te encontra pelo Google não tem pra onde ir — cai direto no Instagram e se perde. Eu monto uma página sua, profissional, que capta contato de quem quer comprar ou vender e ainda passa mais autoridade. Posso te mostrar como ficaria?",
+  objections:[
+    {q:"Já tenho Instagram",a:"O Instagram é ótimo pra relacionamento, mas ninguém filtra por bairro ou faixa de preço lá, e você não aparece no Google. A página resolve isso e ainda funciona como cartão de visitas em anúncios."},
+    {q:"Quanto custa?",a:"Fica entre R$700 e R$2.500 dependendo da estrutura — se paga com uma única comissão."},
+    {q:"Vou pensar",a:"Sem problema — te mando uma prévia sem compromisso pra você ver como ficaria."}
+  ],
+  motivoNota:"Forte presença no Instagram, atua com imóveis de alto ticket, autônomo (fácil contato direto), nenhum site identificado nas buscas.",
+  sources:[{label:"Instagram @jeanbrava",url:"https://www.instagram.com/jeanbrava/"},{label:"InfoImóveis",url:"https://www.infoimoveis.com.br/imobiliaria/jean-batista-da-silva/3464"}]
+},
+{
+  id:"plant-paisagismo", tier:"hot", score:9.0, name:"PLANT Paisagismo — Dayane Almeida",
+  niche:"Construção/Casa", subniche:"Paisagismo autoral residencial e comercial", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:3,
+  address:"R. Vitório Zeola, 181 — Carandá Bosque, Campo Grande/MS",
+  phone:"(67) 99159-1010", whatsapp:"(67) 99159-1010",
+  instagram:{handle:"@plantpaisagismoo", followers:"60 mil"}, google:"5,0 de 5 com 3 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas \"Adicionar website\" (não preenchido).",
+  digital:"Instagram excepcional para o nicho local (60 mil seguidores, 627 posts), posicionamento de \"paisagismo autoral\"; empresa formalizada (CNPJ ativo desde 2022).",
+  scoreBreak:{compra:1.8,lp:1.8,ticket:1.7,digital:1.5,semSite:1.5,contato:0.7},
+  pontosFortes:["60 mil seguidores — prova de demanda muito acima da média local","Projetos autorais de médio/alto padrão","Fundadora com marca pessoal forte"],
+  pontosFracos:["Sem avaliações do Google confirmadas","Sem telefone/WhatsApp direto localizado"],
+  dor:"60 mil pessoas seguem o trabalho no Instagram — prova gigante de que o paisagismo vende sozinho. Mas todo esse tráfego morre no perfil: quem pesquisa \"paisagismo Campo Grande\" no Google não encontra portfólio próprio, só posts soltos, sem formulário de orçamento.",
+  oportunidade:"Converter o alcance orgânico do Instagram e as buscas no Google em pedidos de orçamento qualificados, com portfólio organizado por tipo de projeto.",
+  offerName:"Landing Page de Portfólio + Orçamento",
+  offerStruct:"Hero com projeto de destaque → galeria por categoria (jardins, áreas externas, comerciais) → processo de trabalho → formulário de orçamento com envio de fotos do espaço → depoimentos.",
+  pitch:"Dayane, 60 mil pessoas seguem seu trabalho no Instagram — isso é uma prova gigante de que seu paisagismo vende sozinho. O problema é que ninguém consegue organizar isso num orçamento: a pessoa vê um projeto lindo, mas não sabe como pedir o dela. Uma página com seu portfólio e formulário de orçamento resolveria isso e ainda apareceria no Google.",
+  objections:[
+    {q:"Já tenho Instagram",a:"O Instagram vende a ideia, mas some depois de 24h nos stories. A página fica no ar, aparece no Google, e recebe pedido de orçamento mesmo enquanto você está em obra."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 dependendo da estrutura — um único projeto médio já paga isso."},
+    {q:"Vou pensar",a:"Claro — te mostro uma prévia de como ficaria pro seu portfólio, sem compromisso."}
+  ],
+  motivoNota:"Presença digital excepcional para o nicho (60k IG), alto ticket por projeto, nenhum site identificado, fundadora com marca pessoal facilita o contato.",
+  sources:[{label:"Instagram @plantpaisagismoo",url:"https://www.instagram.com/plantpaisagismoo/"},{label:"Econodata (CNPJ)",url:"https://www.econodata.com.br/consulta-empresa/45952912000100-PLANT-PAISAGISMO-LTDA"}]
+},
+{
+  id:"ricoleta", tier:"warm", score:8.6, name:"Ricoleta Buffet & Eventos",
+  niche:"Eventos", subniche:"Buffet e produção de eventos (casamentos, 15 anos, corporativo)", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:16,
+  address:"R. Ana Luísa de Souza, 105 — Universitário, Campo Grande/MS (endereço novo — a antiga unidade na Chácara Cachoeira consta como \"permanentemente fechada\" no Google, confirmando a mudança de espaço)",
+  phone:"(67) 99222-6700", whatsapp:"(67) 99222-6700",
+  instagram:{handle:"@ricoletabuffeteventos", followers:"2,9 mil"}, google:"5,0 de 5 com 16 avaliações no endereço antigo (confirmado no Google Maps); o novo endereço ainda não tem avaliações próprias",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o Instagram.",
+  digital:"Instagram ativo em bairro nobre; atende clientes corporativos de peso (Sesi, Senai, Cassems, Energisa, Fiems, Suzano) desde 2011; capacidade para até 250 convidados; mudou de endereço recentemente (novo espaço), com 5,0/5 e 16 avaliações confirmadas no local anterior.",
+  scoreBreak:{compra:1.8,lp:1.7,ticket:1.9,digital:0.9,semSite:1.5,contato:0.8},
+  pontosFortes:["Clientes corporativos de grande porte confirmam capacidade financeira","Espaço em bairro nobre, capacidade para 250 convidados","Empreendedor à frente do negócio, fácil de abordar"],
+  pontosFracos:["Instagram com engajamento moderado (2,9k)","Sem avaliações do Google confirmadas"],
+  dor:"Já atende empresas grandes e casamentos de padrão elevado, mas a única forma de conhecer o espaço e pedir orçamento é mandar mensagem no Instagram — não existe página que mostre estrutura, capacidade e diferenciais antes do primeiro contato.",
+  oportunidade:"Uma página institucional com tour do espaço, pacotes por tipo de evento e formulário de orçamento por data, reforçando a credencial corporativa.",
+  offerName:"Landing Page Institucional de Eventos",
+  offerStruct:"Hero com o espaço → tipos de evento (casamento/corporativo/15 anos) → estrutura e capacidade → cases de clientes corporativos → formulário \"consultar data disponível\".",
+  pitch:"Júlio, vi que a Ricoleta atende desde casamentos até eventos para empresas como Sesi e Energisa — isso é uma credencial forte. Mas quem descobre vocês pelo Google não acha nada além do Instagram. Uma página profissional ajudaria a fechar contratos corporativos maiores, que costumam pedir uma apresentação formal antes de negociar.",
+  objections:[
+    {q:"Já tenho Instagram",a:"Pra cliente pessoa física funciona, mas uma empresa fechando um evento de R$20 mil quer ver uma proposta formal, não um perfil."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que uma única decoração de evento."},
+    {q:"Vou pensar",a:"Sem problema, posso te mandar um modelo pronto pra você avaliar com calma."}
+  ],
+  motivoNota:"Atende clientes corporativos de peso (prova de capacidade financeira e recorrência), espaço em bairro nobre, sem site, ticket de evento alto.",
+  sources:[{label:"Instagram @ricoletabuffeteventos",url:"https://www.instagram.com/ricoletabuffeteventos/"},{label:"Campo Grande News",url:"https://www.campograndenews.com.br/conteudo-patrocinado/ricoleta-buffet-novo-espaco-eleva-o-nivel-dos-eventos-em-campo-grande"}]
+},
+{
+  id:"premium-autocar", tier:"warm", score:8.4, name:"Premium Auto Car",
+  niche:"Automotivo", subniche:"Seminovos premium (compra, venda e consignação)", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:128,
+  address:"Av. Ricardo Brandão, 778 — Itanhangá Park, Campo Grande/MS",
+  phone:"(67) 99965-6394", whatsapp:"(67) 99965-6394",
+  instagram:{handle:"@premium_autocar", followers:"5,9 mil"}, google:"4,4 de 5 com 128 avaliações (confirmado no Google Maps — loja ativa)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para um perfil de diretório (mechameaqui.com.br), não um site próprio.",
+  digital:"Instagram ativo com estoque de veículos; 4,4/5 com 128 avaliações confirmadas no Google — loja claramente ativa e bem avaliada (o alerta anterior de um diretório desatualizado foi verificado e descartado).",
+  scoreBreak:{compra:1.7,lp:1.5,ticket:1.9,digital:1.3,semSite:1.4,contato:0.6},
+  pontosFortes:["Ticket altíssimo por unidade vendida","4,4/5 com 128 avaliações confirmadas — forte prova social","Atua também com consignação (receita recorrente de intermediação)"],
+  pontosFracos:["Depende de marketplaces de terceiros para exposição do estoque","Uma avaliação recente reclama de venda de motor/câmbio à parte — vale entender a política antes de usar como case"],
+  dor:"Depende de marketplaces genéricos (Shopcar, Mobiauto) que colocam o estoque lado a lado com dezenas de concorrentes — não existe vitrine própria que destaque a curadoria e a reputação da loja.",
+  oportunidade:"Página própria com o estoque em destaque, processo de avaliação/consignação e formulário de interesse — tirando o cliente da comparação direta com concorrentes no marketplace.",
+  offerName:"Landing Page de Vitrine + Captação (showroom digital)",
+  offerStruct:"Hero com o diferencial da curadoria → estoque em destaque → como funciona a consignação → formulário \"tenho interesse nesse carro\" / \"quero avaliar meu veículo\".",
+  pitch:"Vi o estoque de vocês no Instagram e nos marketplaces — só que lá vocês competem lado a lado com qualquer revenda. Uma página própria colocaria o estoque em destaque, sem concorrente do lado, e ainda captaria quem quer consignar o carro.",
+  objections:[
+    {q:"Já uso o Shopcar/Mobiauto",a:"Eles geram tráfego, mas o cliente compara você com o vizinho na mesma página. A landing page é só sua, sem concorrente do lado."},
+    {q:"Quanto custa?",a:"R$700 a R$2.500 — menos que a margem de um único carro vendido."},
+    {q:"Vou pensar",a:"Tranquilo — te mando uma prévia com um dos carros do seu estoque atual."}
+  ],
+  motivoNota:"Ticket altíssimo por unidade, 4,4/5 com 128 avaliações confirmadas (loja verificadamente ativa), sem site próprio.",
+  sources:[{label:"Instagram @premium_autocar",url:"https://www.instagram.com/premium_autocar/"},{label:"Google Maps (4,4/5, 128 avaliações)",url:"https://www.google.com/maps/search/Premium+Auto+Car+Campo+Grande+MS"}]
+},
+{
+  id:"of-arquitetura", tier:"hot", score:9.1, name:"OF Arquitetura | Engenharia",
+  niche:"Construção/Casa", subniche:"Arquitetura e engenharia residencial médio/alto padrão", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Média", reviews:null,
+  address:"Não confirmado com precisão nas fontes consultadas — Campo Grande/MS",
+  phone:"Não encontrado nas fontes consultadas", whatsapp:"Via Instagram",
+  instagram:{handle:"@of.arquitetura_engenharia", followers:"40 mil"}, google:"Não encontrado nas fontes consultadas",
+  site:"none", siteNote:"Nenhum site próprio identificado nas buscas realizadas — presença via Instagram e LinkedIn da empresa.",
+  digital:"Instagram excepcional para o nicho (40 mil seguidores), especializado em projetos residenciais de médio/alto padrão.",
+  scoreBreak:{compra:1.8,lp:1.8,ticket:1.9,digital:1.5,semSite:1.5,contato:0.6},
+  pontosFortes:["40 mil seguidores — maior presença digital entre todos os escritórios de arquitetura pesquisados","Foco claro em projetos residenciais de médio/alto padrão","Ticket altíssimo por projeto"],
+  pontosFracos:["Endereço físico não confirmado nas buscas","Contato provavelmente via equipe, não sócio direto"],
+  dor:"40 mil seguidores no Instagram são uma prova enorme de autoridade, mas todo esse público esbarra num perfil sem vitrine própria — não há portfólio navegável por tipo de projeto nem um caminho claro para pedir um orçamento.",
+  oportunidade:"Converter o maior público local do nicho em pedidos de orçamento qualificados, com portfólio segmentado e formulário direto.",
+  offerName:"Landing Page de Portfólio + Orçamento",
+  offerStruct:"Hero com projeto-assinatura → portfólio por tipologia (residencial/reforma/comercial) → processo de trabalho → formulário de orçamento com upload de referências.",
+  pitch:"Vocês têm o maior Instagram entre os escritórios de arquitetura daqui de Campo Grande — 40 mil pessoas acompanhando o trabalho de vocês. Mas hoje, quem pesquisa no Google não encontra um portfólio de vocês, só o perfil. Uma página própria aproveitaria esse público gigante pra gerar pedidos de orçamento direto.",
+  objections:[
+    {q:"Já tenho Instagram",a:"Com 40 mil seguidores o Instagram já prova a demanda — falta só um lugar pra converter isso em orçamento, porque o perfil não filtra por tipo de projeto nem aparece no Google."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração mínima de um único projeto residencial."},
+    {q:"Vou pensar",a:"Sem problema, posso te mostrar uma prévia com um dos projetos que vocês já postaram."}
+  ],
+  motivoNota:"Maior presença digital entre os escritórios de arquitetura pesquisados (40k IG), alto ticket, nenhum site identificado.",
+  faltaConfirmar:"Endereço físico exato e nome do(s) sócio(s) responsável(is).",
+  sources:[{label:"Instagram @of.arquitetura_engenharia",url:"https://www.instagram.com/of.arquitetura_engenharia/"}]
+},
+{
+  id:"claudia-brum", tier:"warm", score:8.2, name:"Claudia Brum Design de Interiores",
+  niche:"Construção/Casa", subniche:"Design de interiores residencial", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:2,
+  address:"R. São Paulo, 1214-A — Monte Castelo, Campo Grande/MS",
+  phone:"(67) 99931-1936", whatsapp:"(67) 99931-1936",
+  instagram:{handle:"@claudiabrumdesign", followers:"6,8 mil"}, google:"5,0 de 5 com 2 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas \"Adicionar website\" (não preenchido).",
+  digital:"Profissional solo especializada em design, arquitetura e decoração; presença ativa também no Pinterest.",
+  scoreBreak:{compra:1.5,lp:1.7,ticket:1.6,digital:1.0,semSite:1.5,contato:0.9},
+  pontosFortes:["Profissional solo — fácil falar diretamente com a responsável","Presença em duas redes (Instagram + Pinterest)","Design de interiores tem forte apelo visual para landing page"],
+  pontosFracos:["Sem avaliações encontradas","Sem endereço físico confirmado"],
+  dor:"Como designer solo, todo o portfólio de projetos fica pulverizado entre posts do Instagram e pins do Pinterest — não existe um lugar único que mostre o antes/depois organizado por ambiente e capture o interesse de quem está decorando a casa.",
+  oportunidade:"Página de portfólio por ambiente (sala, quarto, cozinha) com formulário de consultoria inicial.",
+  offerName:"Landing Page de Portfólio de Design",
+  offerStruct:"Hero com um antes/depois marcante → portfólio por ambiente → como funciona a consultoria → formulário de contato inicial.",
+  pitch:"Claudia, seu trabalho de design tem um apelo visual muito forte — dá pra ver isso no seu Instagram e Pinterest. Uma página só sua, organizada por ambiente, ajudaria a pessoa a se decidir mais rápido e a te procurar diretamente, sem se perder navegando por posts soltos.",
+  objections:[
+    {q:"Já tenho Instagram e Pinterest",a:"São ótimas vitrines, mas nenhuma das duas tem um formulário de contato direto nem aparece bem no Google. A página junta o melhor dos dois num só lugar."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — o valor de uma consultoria de design já cobre isso."}
+  ],
+  motivoNota:"Profissional solo com boa presença digital em duas redes, alto ticket por projeto de decoração, nenhum site identificado.",
+  faltaConfirmar:"Endereço físico e avaliações de clientes.",
+  sources:[{label:"Instagram @claudiabrumdesign",url:"https://www.instagram.com/claudiabrumdesign/"}]
+},
+{
+  id:"essencia-de-mato", tier:"warm", score:8.0, name:"Essência de Mato Paisagismo — Aline Almeida",
+  niche:"Construção/Casa", subniche:"Paisagismo autoral (projeto, execução e iluminação)", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:9,
+  address:"R. do Catete, 340 — Jardim Monte Líbano, Campo Grande/MS",
+  phone:"(67) 99985-6701", whatsapp:"(67) 99985-6701",
+  instagram:{handle:"@essenciademato.paisagismo", followers:"29 mil"}, google:"3,7 de 5 com 9 avaliações (confirmado no Google Maps) — ver alerta abaixo",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas \"Adicionar website\" (não preenchido).",
+  digital:"Engenheira agrônoma e paisagista; participou da Casa Cor MS 2021 (mostra de arquitetura e decoração de referência nacional) — forte credencial profissional. ALERTA: o Google Maps mostra nota 3,7/5 (9 avaliações) com pelo menos 2 reclamações recentes sobre atraso na entrega e comunicação — vale conversar com cautela e confirmar a situação atual antes de investir tempo na proposta.",
+  scoreBreak:{compra:1.7,lp:1.8,ticket:1.7,digital:0.8,semSite:1.5,contato:0.5},
+  pontosFortes:["29 mil seguidores — presença excepcional para paisagismo solo","Credencial Casa Cor MS 2021 (mostra de referência no setor)","Oferece projeto + execução + iluminação (ticket combinado alto)"],
+  pontosFracos:["Nota 3,7/5 no Google com reclamações recentes sobre prazo e comunicação — reputação mista, não excelente","Sem site é real, mas a prioridade dela pode ser reputação antes de marketing"],
+  dor:"Ter participado da Casa Cor MS é uma credencial que poucos paisagistas locais têm, mas essa autoridade fica \"presa\" no Instagram — não existe uma página que capitalize esse selo de qualidade para conquistar quem pesquisa paisagismo no Google. Vale notar que há reclamações recentes no Google sobre prazo, então a conversa pode precisar abordar isso com sensibilidade.",
+  oportunidade:"Página que destaque a credencial Casa Cor, o portfólio de projetos com iluminação, e capte pedidos de orçamento qualificados.",
+  offerName:"Landing Page de Portfólio + Orçamento",
+  offerStruct:"Hero citando a Casa Cor MS → portfólio de projetos (com fotos noturnas de iluminação) → processo de trabalho → formulário de orçamento.",
+  pitch:"Aline, ter participado da Casa Cor MS é uma credencial gigante que pouca gente do seu setor aqui em Campo Grande tem. Mas hoje isso fica \"escondido\" no Instagram. Uma página que destaque essa credencial e seu portfólio ajudaria a atrair clientes que já pesquisam paisagismo de qualidade no Google.",
+  objections:[
+    {q:"Já tenho Instagram",a:"29 mil seguidores mostram que seu trabalho já convence — falta um lugar que leve isso pro Google e capture o orçamento direto, sem depender só do algoritmo do Instagram."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração de um projeto de paisagismo com iluminação."},
+    {q:"Vou pensar",a:"Claro, te mostro uma prévia usando um dos seus projetos já publicados."}
+  ],
+  motivoNota:"29 mil seguidores, credencial Casa Cor MS 2021, alto ticket (projeto+execução+iluminação), nenhum site identificado — nota reduzida de uma avaliação preliminar de 8,9 para 8,0 após confirmar reputação mista (3,7/5, 9 avaliações) no Google Maps.",
+  faltaConfirmar:"Conversar diretamente para entender se as reclamações recentes foram pontuais/resolvidas.",
+  sources:[{label:"Instagram @essenciademato.paisagismo",url:"https://www.instagram.com/essenciademato.paisagismo/"},{label:"Google Maps (3,7/5, 9 avaliações — ver reclamações)",url:"https://www.google.com/maps/search/Ess%C3%AAncia+de+Mato+Paisagismo+Campo+Grande+MS"}]
+},
+{
+  id:"cris-alves-interiores", tier:"warm", score:8.2, name:"Cris Alves Interiores — Cristianne Alves",
+  niche:"Construção/Casa", subniche:"Design de interiores e arquitetura", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:11,
+  address:"Rua Rio Grande do Sul, 1549, Sala 01 — Centro, Campo Grande/MS",
+  phone:"(67) 98137-4664", whatsapp:"(67) 98137-4664",
+  instagram:{handle:"@crisalvesinteriores", followers:"11 mil"}, google:"5,0 de 5 com 11 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — presença via Instagram e diretórios (Obra Verificada, StarOfService).",
+  digital:"Vice-presidente da ABD-MS (Associação Brasileira de Designers de Interiores, seccional MS) — credencial de liderança no setor; empresa formal (CNPJ ativo desde 2022).",
+  scoreBreak:{compra:1.6,lp:1.7,ticket:1.6,digital:1.1,semSite:1.5,contato:0.7},
+  pontosFortes:["11 mil seguidores e cargo de liderança na associação do setor (ABD-MS)","Empresa formalizada, endereço fixo em bairro nobre","Alto ticket em projetos de design de interiores"],
+  pontosFracos:["Sem avaliações do Google encontradas","Contato pode passar por equipe, não só a titular"],
+  dor:"Ser vice-presidente da ABD-MS dá autoridade de sobra no setor, mas essa autoridade não está capturada em nenhuma página própria — só em Instagram e diretórios genéricos de terceiros, que não destacam esse diferencial.",
+  oportunidade:"Página que combine a credencial de liderança no setor com portfólio de projetos, gerando mais confiança que os diretórios genéricos.",
+  offerName:"Landing Page de Autoridade + Portfólio",
+  offerStruct:"Hero citando o cargo na ABD-MS → portfólio por ambiente → sobre a designer → formulário de consultoria inicial.",
+  pitch:"Cristianne, ser vice-presidente da ABD-MS é uma credencial que praticamente nenhum concorrente seu tem. Hoje isso está diluído entre Instagram e diretórios como o Obra Verificada. Uma página própria colocaria essa autoridade em primeiro plano e captaria contato direto.",
+  objections:[
+    {q:"Já apareço em diretórios como Obra Verificada",a:"Esses diretórios colocam você ao lado de dezenas de concorrentes na mesma página. Uma landing page é só sua, sem comparação direta ao lado."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — o valor de uma consultoria de design já cobre isso."}
+  ],
+  motivoNota:"11 mil seguidores, cargo de liderança setorial (VP ABD-MS), empresa formal com endereço fixo, alto ticket, nenhum site identificado.",
+  faltaConfirmar:"Avaliações de clientes e telefone/WhatsApp direto.",
+  sources:[{label:"Instagram @crisalvesinteriores",url:"https://www.instagram.com/crisalvesinteriores/"},{label:"Econodata (CNPJ)",url:"https://www.econodata.com.br/consulta-empresa/48517751000106-C-ALVES-RIBEIRO-DESIGNER-DE-INTERIORES"}]
+},
+{
+  id:"lupasa-construtora", tier:"warm", score:8.3, name:"Lupasa Construtora",
+  niche:"Construção/Casa", subniche:"Construção de casas personalizadas", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Média", reviews:23,
+  address:"R. Reg. Feijó, 180 — Jardim Paulista, Campo Grande/MS",
+  phone:"(67) 99213-3164", whatsapp:"(67) 99213-3164",
+  instagram:{handle:"@lupasaconstrutora", followers:"7,9 mil"}, google:"4,8 de 5 com 23 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas \"Adicionar website\" (não preenchido).",
+  digital:"Constrói casas personalizadas do projeto ao acabamento em Campo Grande; 7,9 mil seguidores no Instagram; 4,8/5 com 23 avaliações confirmadas no Google, com depoimentos elogiando prazo e transparência.",
+  scoreBreak:{compra:1.6,lp:1.7,ticket:2.0,digital:0.9,semSite:1.5,contato:0.6},
+  pontosFortes:["Constrói casas do zero — ticket entre os mais altos de todo o radar","7,9 mil seguidores no Instagram","Processo completo (projeto + execução) facilita o discurso de venda"],
+  pontosFracos:["Sem avaliações do Google encontradas","Sem endereço físico confirmado"],
+  dor:"Construir uma casa personalizada é uma das decisões de maior valor que uma família toma — e essa decisão hoje depende de rolar posts no Instagram, sem uma página que explique o processo completo do terreno à chave na mão.",
+  oportunidade:"Página que explique o processo passo a passo (projeto, orçamento, execução, entrega) e reduza a insegurança de contratar uma construtora pelo Instagram.",
+  offerName:"Landing Page Institucional de Construção",
+  offerStruct:"Hero com casa entregue em destaque → processo do projeto à entrega → obras concluídas → formulário \"quero construir minha casa\".",
+  pitch:"Construir uma casa é uma das maiores decisões financeiras que uma família toma — e hoje quem descobre a Lupasa pelo Instagram não tem como entender o processo completo antes de chamar no direct. Uma página explicando passo a passo do projeto à entrega passaria muito mais segurança e geraria contatos mais qualificados.",
+  objections:[
+    {q:"Já tenho Instagram",a:"Pra uma decisão desse tamanho, a família quer entender o processo inteiro antes de conversar — o Instagram mostra o resultado, mas não explica o caminho até lá. A página faz isso."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — muito menor que a margem de uma única obra."},
+    {q:"Vou pensar",a:"Sem problema, te mostro uma prévia com uma das casas que vocês já entregaram."}
+  ],
+  motivoNota:"Ticket altíssimo (construção de casas do zero), 7,9 mil seguidores, nenhum site identificado.",
+  faltaConfirmar:"Endereço físico e avaliações de clientes.",
+  sources:[{label:"Instagram @lupasaconstrutora",url:"https://www.instagram.com/lupasaconstrutora/"}]
+},
+{
+  id:"escola-despertar", tier:"warm", score:8.2, name:"Escola Despertar",
+  niche:"Educação", subniche:"Educação infantil ao 9º ano", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:36,
+  address:"Rua Amazonas, 1355 — Cruzeiro, Campo Grande/MS",
+  phone:"(67) 98122-0955", whatsapp:"(67) 98122-0955",
+  instagram:{handle:"@escoladespertar", followers:"24 mil"}, google:"4,3 de 5 com 36 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site institucional próprio identificado — o Google Business usa um link de agendamento via WhatsApp (mechamenozap.com.br), não um site com conteúdo próprio.",
+  digital:"24 mil seguidores no Instagram, muito acima da média de escolas particulares da cidade; estrutura com biblioteca, quadra coberta e salas climatizadas.",
+  scoreBreak:{compra:1.6,lp:1.6,ticket:1.7,digital:1.3,semSite:1.5,contato:0.5},
+  pontosFortes:["24 mil seguidores — muito acima de qualquer outra escola pesquisada","Mensalidade recorrente e contrato de longo prazo por família matriculada","Estrutura física robusta para mostrar em fotos/vídeo"],
+  pontosFracos:["Sem avaliações do Google encontradas","Contato institucional, não com uma pessoa específica"],
+  dor:"Uma escola com 24 mil seguidores tem prova de marca muito forte, mas famílias pesquisando \"escola particular Campo Grande\" no Google não encontram um site institucional — só redes sociais e listagens de terceiros como QEdu, que não vendem a proposta pedagógica.",
+  oportunidade:"Página institucional que apresente proposta pedagógica, estrutura e um formulário de \"agendar visita\", aproveitando o público já engajado no Instagram.",
+  offerName:"Landing Page Institucional (Matrículas)",
+  offerStruct:"Hero com a escola → proposta pedagógica → estrutura (fotos/vídeo) → depoimentos de pais → formulário \"agendar visita\".",
+  pitch:"A Despertar tem 24 mil seguidores — um alcance que poucas escolas particulares daqui de Campo Grande têm. Mas quem pesquisa \"escola particular\" no Google não encontra vocês, só nas redes sociais. Uma página institucional com um botão de agendar visita aproveitaria muito melhor esse público na hora da matrícula.",
+  objections:[
+    {q:"Já tenho Instagram",a:"Ótimo pra engajar quem já é da comunidade escolar, mas quem está pesquisando escola pela primeira vez busca no Google — e lá vocês não aparecem com uma página própria."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — muito menos que uma única mensalidade multiplicada pelo ano letivo."},
+    {q:"Vou pensar",a:"Sem problema, posso te mostrar uma prévia da página com fotos da própria escola."}
+  ],
+  motivoNota:"24 mil seguidores (muito acima da média do setor), mensalidade recorrente de alto valor, nenhum site identificado.",
+  faltaConfirmar:"Avaliações de pais no Google e valor médio da mensalidade.",
+  sources:[{label:"Instagram @escoladespertar",url:"https://www.instagram.com/escoladespertar/"},{label:"QEdu",url:"https://qedu.org.br/escola/50030787-escola-despertar"}]
+},
+{
+  id:"agro-imoveis-ms", tier:"hot", score:9.4, name:"Corretor Paulo Eduardo — Agro Imóveis MS",
+  niche:"Imobiliário", subniche:"Imóveis rurais: fazendas, sítios e chácaras", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Alta", reviews:4,
+  address:"R. João Tessitore, 268 — Chácara Cachoeira, Campo Grande/MS",
+  phone:"(67) 99605-0181", whatsapp:"(67) 99605-0181",
+  instagram:{handle:"@agroimoveisms", followers:"48 mil"}, google:"5,0 de 5 com 4 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o Instagram.",
+  digital:"CRECI-MS 3429; especialista em imóveis rurais (fazendas, sítios, chácaras) com 48 mil seguidores — o maior público entre todos os corretores pesquisados em Campo Grande.",
+  scoreBreak:{compra:1.9,lp:1.8,ticket:2.0,digital:1.4,semSite:1.5,contato:0.8},
+  pontosFortes:["48 mil seguidores — maior alcance entre todos os corretores pesquisados","Nicho de fazendas e imóveis rurais: comissões entre as mais altas de todo o radar","CRECI verificado, corretor autônomo (fácil abordagem direta)"],
+  pontosFracos:["Sem endereço físico ou avaliações confirmadas","Vendas de imóveis rurais dependem de relacionamento, não só de tráfego"],
+  dor:"Vender fazendas e propriedades rurais depende de mostrar escala, localização e potencial produtivo — informação que não cabe em um post de Instagram. Hoje, quem procura \"fazenda à venda Campo Grande\" cai em portais genéricos cheios de outros corretores, nunca na vitrine própria dele.",
+  oportunidade:"Página com catálogo de propriedades rurais (fotos aéreas, hectares, aptidão) e formulário de interesse, tirando o corretor da comparação direta com portais genéricos como ZAP e Wimoveis.",
+  offerName:"Landing Page de Catálogo Rural + Captação",
+  offerStruct:"Hero com propriedade em destaque (foto aérea) → catálogo por região/hectares/aptidão → sobre o corretor (CRECI, especialização) → formulário \"tenho interesse nesta propriedade\" / \"quero vender minha fazenda\".",
+  pitch:"Paulo, 48 mil pessoas seguem seu trabalho com fazendas e imóveis rurais — é o maior público entre os corretores daqui de Campo Grande. Mas hoje quem pesquisa \"fazenda à venda\" no Google cai em portais genéricos, ao lado de dezenas de outros corretores. Uma página só sua, com fotos aéreas e as propriedades organizadas, mudaria completamente essa primeira impressão.",
+  objections:[
+    {q:"Já uso portais como ZAP e Wimoveis",a:"Eles geram tráfego, mas colocam você ao lado de outros corretores na mesma busca. Uma página própria é só sua, sem concorrente do lado, e ainda funciona como material de apresentação para o proprietário que quer vender."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração mínima de uma única comissão de venda rural."},
+    {q:"Vou pensar",a:"Sem problema, te mostro uma prévia usando uma das propriedades que você já divulgou no Instagram."}
+  ],
+  motivoNota:"Maior audiência entre todos os corretores pesquisados (48k IG), nicho de altíssimo ticket (imóveis rurais), corretor autônomo, nenhum site identificado.",
+  faltaConfirmar:"Endereço/escritório físico e avaliações de clientes.",
+  sources:[{label:"Instagram @agroimoveisms",url:"https://www.instagram.com/agroimoveisms/"}]
+},
+{
+  id:"solar-ms", tier:"warm", score:8.5, name:"Solar MS",
+  niche:"Casa/Construção", subniche:"Energia fotovoltaica residencial/comercial", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Média", reviews:null,
+  address:"Avenida Gunter Hans, 6812 — Campo Grande/MS",
+  phone:"(67) 99285-0945", whatsapp:"(67) 99285-0945",
+  instagram:{handle:"@solar.ms", followers:"20 mil"}, google:"Não encontrado nas fontes consultadas",
+  site:"none", siteNote:"Nenhum site próprio identificado — presença via Instagram e Facebook.",
+  digital:"20 mil seguidores no Instagram, endereço fixo confirmado, atuação em energia fotovoltaica residencial e comercial.",
+  scoreBreak:{compra:1.6,lp:1.6,ticket:2.0,digital:1.3,semSite:1.5,contato:0.5},
+  pontosFortes:["20 mil seguidores — presença digital forte para o setor","Endereço fixo confirmado","Ticket altíssimo por sistema instalado"],
+  pontosFracos:["Sem avaliações do Google encontradas","Concorrência forte de empresas maiores (Tenda Solar, Luminar) que já têm site"],
+  dor:"Compete com empresas maiores do setor que já têm site institucional — sem uma página própria, a Solar MS depende só do Instagram para convencer o cliente antes de uma venda de dezenas de milhares de reais.",
+  oportunidade:"Página com simulador de economia e prova social, equiparando a apresentação da Solar MS à de concorrentes maiores que já têm site.",
+  offerName:"Landing Page de Geração de Orçamento",
+  offerStruct:"Hero com economia estimada → como funciona a instalação → projetos realizados → formulário \"simular minha conta de luz\".",
+  pitch:"Alguns concorrentes seus aqui em Campo Grande já têm site institucional — isso pesa na hora de fechar uma venda de dezenas de milhares de reais. Uma página própria, com simulador de economia, colocaria a Solar MS no mesmo nível de apresentação, ou melhor.",
+  objections:[
+    {q:"Já tenho Instagram",a:"Pra uma venda desse valor, o cliente compara propostas — se o concorrente tem site e você não, a diferença de percepção pesa contra você."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração mínima de uma única venda de sistema solar."}
+  ],
+  motivoNota:"Ticket altíssimo, 20 mil seguidores, endereço fixo confirmado, nenhum site identificado (ao contrário de concorrentes diretos do setor).",
+  faltaConfirmar:"Avaliações de clientes no Google.",
+  sources:[{label:"Instagram @solar.ms",url:"https://www.instagram.com/solar.ms/"},{label:"Facebook",url:"https://www.facebook.com/solarms.cg/"}]
+},
+{
+  id:"rodrigo-viana", tier:"warm", score:8.4, name:"Rodrigo Viana — Corretor de Imóveis",
+  niche:"Imobiliário", subniche:"Corretor autônomo (vendas em geral)", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Alta", reviews:9,
+  address:"R. Spipe Calarge, 99 — Jardim TV Morena, Campo Grande/MS",
+  phone:"(67) 99243-5134", whatsapp:"(67) 99243-5134",
+  instagram:{handle:"@rodrigoviana.imoveis", followers:"5,8 mil"}, google:"5,0 de 5 com 9 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o WhatsApp.",
+  digital:"CRECI 7.833/MS; 5,8 mil seguidores no Instagram; 5,0/5 com 9 avaliações confirmadas, com depoimentos elogiando dedicação e agilidade no fechamento.",
+  scoreBreak:{compra:1.5,lp:1.7,ticket:1.9,digital:1.0,semSite:1.5,contato:0.8},
+  pontosFortes:["5,0/5 com 9 avaliações confirmadas — reputação excelente","CRECI verificado, corretor autônomo (fácil abordagem direta)","Imóveis em geral — ticket alto por venda"],
+  pontosFracos:["Base de avaliações ainda pequena (9)","Seguidores do Instagram moderados (5,8k) comparado a outros corretores do radar"],
+  dor:"Tem nota máxima no Google mas depende só do WhatsApp e do Instagram para captar contato — quem pesquisa \"corretor de imóveis Campo Grande\" não encontra uma página própria que mostre essa reputação de cara.",
+  oportunidade:"Página que destaque a nota 5,0 confirmada e capte leads de compradores/vendedores diretamente, sem depender só do Instagram.",
+  offerName:"Landing Page de Captação Imobiliária",
+  offerStruct:"Hero com nota 5,0 em destaque → imóveis em destaque → depoimentos → formulário \"quero comprar\" / \"quero vender\".",
+  pitch:"Rodrigo, você tem nota máxima no Google com depoimentos ótimos sobre agilidade e dedicação — isso é raro. Uma página própria que mostre essa reputação de cara ajudaria a converter quem pesquisa corretor no Google, antes mesmo de mandar mensagem.",
+  objections:[
+    {q:"Já tenho Instagram",a:"O Instagram é ótimo pra relacionamento, mas sua nota 5,0 no Google fica \"escondida\" lá. Uma página coloca essa prova social em primeiro plano pra quem está pesquisando agora."},
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração de uma única comissão de venda."}
+  ],
+  motivoNota:"5,0/5 com 9 avaliações confirmadas, CRECI verificado, corretor autônomo, alto ticket, nenhum site identificado.",
+  faltaConfirmar:"Nada crítico — dados já bem confirmados.",
+  sources:[{label:"Instagram @rodrigoviana.imoveis",url:"https://www.instagram.com/rodrigoviana.imoveis/"},{label:"Google Maps (5,0/5, 9 avaliações)",url:"https://www.google.com/maps/search/Rodrigo+Viana+corretor+de+imoveis+Campo+Grande+MS"}]
+},
+{
+  id:"grupo-movile", tier:"warm", score:8.2, name:"Grupo Móvile",
+  niche:"Construção/Casa", subniche:"Obras, arquitetura e marcenaria sob medida", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:7,
+  address:"Rua Xingu, 55 — Vila Rica, Campo Grande/MS",
+  phone:"(67) 99901-9827", whatsapp:"(67) 99901-9827",
+  instagram:{handle:"@grupomovile_", followers:"Não encontrado"}, google:"4,4 de 5 com 7 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas \"Adicionar website\" (não preenchido).",
+  digital:"Fornecedora homologada do BNDES desde 2024; marcenaria própria (não terceirizada); fundada em 2015; 4,4/5 com 7 avaliações confirmadas, elogiando atendimento e acabamento.",
+  scoreBreak:{compra:1.6,lp:1.7,ticket:1.8,digital:0.9,semSite:1.5,contato:0.7},
+  pontosFortes:["Fornecedora BNDES — forte prova de capacidade financeira","4,4/5 com avaliações confirmadas no Google","Marcenaria própria, não terceirizada — ticket alto (obras + móveis planejados)"],
+  pontosFracos:["Número de seguidores do Instagram não confirmado","Poucas avaliações (7) — base pequena, ainda que positiva"],
+  dor:"Fornecedora do BNDES e com portfólio de obras e marcenaria própria, mas depende de matérias patrocinadas em portal de notícias para ganhar visibilidade — não tem página que organize o portfólio por tipo de projeto.",
+  oportunidade:"Página de portfólio segmentado (residencial / comercial / marcenaria) com formulário de orçamento.",
+  offerName:"Landing Page de Portfólio + Orçamento",
+  offerStruct:"Hero com obra de destaque → portfólio por categoria → diferencial (marcenaria própria) → formulário de orçamento.",
+  pitch:"Vocês são fornecedores do BNDES e têm marcenaria própria — isso já diz muito sobre a estrutura do negócio. Mas hoje a única vitrine de vocês é uma matéria paga no jornal local. Uma página própria concentraria o portfólio e captaria orçamento direto pelo Google.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração de um único projeto de marcenaria."}
+  ],
+  motivoNota:"Fornecedora BNDES, marcenaria própria, 4,4/5 confirmado no Google, alto ticket, nenhum site identificado.",
+  faltaConfirmar:"Número de seguidores do Instagram.",
+  sources:[{label:"Instagram @grupomovile_",url:"https://www.instagram.com/grupomovile_/"},{label:"Google Maps (4,4/5, 7 avaliações)",url:"https://www.google.com/maps/search/Grupo+M%C3%B3vile+Campo+Grande+MS"}]
+},
+{
+  id:"dayane-caetano", tier:"warm", score:8.1, name:"Dra. Dayane Caetano — Fisioterapia Pélvica",
+  niche:"Saúde/Estética", subniche:"Fisioterapia pélvica e uroginecológica", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Alta", reviews:58,
+  address:"Rua Jeribá, 325 — Chácara Cachoeira, Campo Grande/MS (Work Center)",
+  phone:"(67) 99914-3117", whatsapp:"(67) 99914-3117",
+  instagram:{handle:"@dradayanecaetano", followers:"5,3 mil"}, google:"5,0 de 5 com 58 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para um diretório (corpoinforma.com), não um site próprio.",
+  digital:"Mestre em Ciências do Movimento; equipe com mais de uma profissional (Dayane e Gabriele); 5,0/5 com 58 avaliações confirmadas — uma das notas mais altas do radar, com a própria doutora respondendo pessoalmente a cada avaliação.",
+  scoreBreak:{compra:1.4,lp:1.7,ticket:1.4,digital:1.3,semSite:1.5,contato:0.8},
+  pontosFortes:["5,0/5 com 58 avaliações confirmadas — uma das mais altas do radar","Especialidade de nicho com forte autoridade (mestrado)","Responde pessoalmente cada avaliação — indício de acessibilidade real"],
+  pontosFracos:["Ticket por sessão é moderado, não altíssimo (mas há pacotes/tratamentos contínuos)"],
+  dor:"Especialidade de nicho (saúde da mulher/uroginecologia) que gera dúvidas e tabu — falta uma página que explique o tratamento com autoridade antes do agendamento, hoje concentrado no Instagram.",
+  oportunidade:"Página de autoridade que explica o tratamento com clareza e reduz a barreira do primeiro contato.",
+  offerName:"Landing Page de Autoridade + Agendamento",
+  offerStruct:"Hero explicando o que é fisioterapia pélvica → para quem é indicado → sobre a especialista → depoimentos → formulário de agendamento.",
+  pitch:"Dra. Dayane, sua especialidade gera muitas dúvidas antes mesmo da primeira consulta. Uma página que explique com clareza o que é o tratamento, pra quem é indicado e traga depoimentos ajudaria a reduzir essa barreira antes do agendamento.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — o equivalente a poucas sessões."}],
+  motivoNota:"5,0/5 com 58 avaliações confirmadas (uma das melhores notas do radar), especialidade de nicho com forte autoridade, nenhum site identificado.",
+  faltaConfirmar:"Nada crítico — dados já bem confirmados.",
+  sources:[{label:"Instagram @dradayanecaetano",url:"https://www.instagram.com/dradayanecaetano/"},{label:"Google Maps (5,0/5, 58 avaliações)",url:"https://www.google.com/maps/search/Dayane+Caetano+Fisioterapia+P%C3%A9lvica+Campo+Grande+MS"}]
+},
+{
+  id:"laserstar-spa", tier:"warm", score:8.0, name:"LaserStar Spa Urbano",
+  niche:"Saúde/Estética", subniche:"Massoterapia e estética facial/corporal", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Média", reviews:241,
+  address:"Av. Mato Grosso, 4250 — Carandá Bosque, Campo Grande/MS",
+  phone:"(67) 99192-6127", whatsapp:"(67) 99192-6127",
+  instagram:{handle:"@laserstarspaurbanoestetica", followers:"12 mil"}, google:"5,0 de 5 com 241 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o WhatsApp.",
+  digital:"12 mil seguidores no Instagram; 5,0/5 com 241 avaliações confirmadas — uma das maiores bases de avaliação de todo o radar; oferece massoterapia e estética facial/corporal, inclusive gift cards; proprietárias respondem pessoalmente cada avaliação.",
+  scoreBreak:{compra:1.5,lp:1.6,ticket:1.3,digital:1.5,semSite:1.5,contato:0.6},
+  pontosFortes:["5,0/5 com 241 avaliações — uma das provas sociais mais fortes de todo o radar","12 mil seguidores no Instagram","Já vende gift cards (sinal de ticket estruturado)"],
+  pontosFracos:["Ticket por sessão é moderado (mas gift cards e pacotes ajudam)","Contato indireto (equipe via WhatsApp comercial)"],
+  dor:"241 avaliações com nota máxima são uma prova social rara, mas usam apenas um link de WhatsApp na bio do Instagram em vez de página própria — perde a chance de mostrar pacotes e essa reputação toda antes do primeiro contato.",
+  oportunidade:"Página com menu de serviços/pacotes, prova social das 241 avaliações e reserva direta, substituindo a dependência só do WhatsApp.",
+  offerName:"Landing Page de Menu de Serviços + Reserva",
+  offerStruct:"Hero com ambiente do spa e nota 5,0/241 avaliações → menu de serviços/pacotes → gift cards → formulário de reserva.",
+  pitch:"Vocês têm nota 5,0 com 241 avaliações no Google — isso é uma prova social rara, poucos lugares em Campo Grande chegam perto disso. Uma página própria que mostre essa reputação e o menu de serviços aproveitaria muito melhor esse tráfego do que só um link de WhatsApp.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que um único pacote de sessões."}],
+  motivoNota:"5,0/5 com 241 avaliações confirmadas (uma das maiores provas sociais do radar), 12 mil seguidores, nenhum site identificado.",
+  faltaConfirmar:"Nada crítico — dados já bem confirmados.",
+  sources:[{label:"Instagram @laserstarspaurbanoestetica",url:"https://www.instagram.com/laserstarspaurbanoestetica/"},{label:"Google Maps (5,0/5, 241 avaliações)",url:"https://www.google.com/maps/search/LaserStar+Spa+Urbano+Campo+Grande+MS"}]
+},
+{
+  id:"maida-fotografia", tier:"backup", score:7.6, name:"Maida — Fotografia de Casamento",
+  niche:"Eventos", subniche:"Fotografia de casamento", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Alta", reviews:null,
+  address:"Não identificado — atuação como fotógrafa autônoma",
+  phone:"Não encontrado nas fontes consultadas", whatsapp:"Via Instagram",
+  instagram:{handle:"@maidanafotografiacasamento", followers:"2,9 mil"}, google:"Não encontrado nas fontes consultadas",
+  site:"none", siteNote:"Nenhum site próprio identificado nas buscas realizadas.",
+  digital:"7 anos de atuação fotografando casamentos em Campo Grande; 197 publicações no Instagram.",
+  scoreBreak:{compra:1.1,lp:1.7,ticket:1.4,digital:0.9,semSite:1.5,contato:1.0},
+  pontosFortes:["7 anos de atuação no nicho de casamentos","Fácil contato direto (profissional autônoma)"],
+  pontosFracos:["Instagram com engajamento moderado (2,9k)","Sem avaliações encontradas nem volume de trabalhos/ano confirmado"],
+  dor:"7 anos de atuação em casamentos, mas o portfólio inteiro está disperso em posts do Instagram — noivos pesquisando \"fotógrafo de casamento Campo Grande\" não encontram um portfólio único organizado por estilo.",
+  oportunidade:"Página de portfólio com álbuns por estilo/casamento e formulário de orçamento por data.",
+  offerName:"Landing Page de Portfólio + Orçamento por Data",
+  offerStruct:"Hero com álbum de destaque → portfólio por estilo → sobre a fotógrafa → formulário \"consultar disponibilidade da minha data\".",
+  pitch:"Maida, 7 anos fotografando casamentos aqui em Campo Grande é uma baita credencial. Mas hoje quem pesquisa no Google não acha seu portfólio, só o Instagram. Uma página organizada por álbuns ajudaria os noivos a se decidirem mais rápido.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — bem menos que o valor de uma cobertura de casamento."}],
+  motivoNota:"Quase lá: falta confirmar avaliações e volume real de trabalhos por ano para consolidar o ticket.",
+  faltaConfirmar:"Avaliações de clientes e volume de casamentos fotografados por ano.",
+  sources:[{label:"Instagram @maidanafotografiacasamento",url:"https://www.instagram.com/maidanafotografiacasamento/"}]
+},
+{
+  id:"corpo-e-pele", tier:"warm", score:8.2, name:"Clínica Corpo & Pele — Helenice Ribeiro",
+  niche:"Saúde/Estética", subniche:"Harmonização facial e rinomodelação", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:84,
+  address:"Rua 25 de Dezembro, 1287 — Cruzeiro, Campo Grande/MS",
+  phone:"(67) 99295-0546", whatsapp:"(67) 99295-0546",
+  instagram:{handle:"Perfil específico não localizado com segurança nas buscas", followers:null}, google:"4,9 de 5 com 84 avaliações (confirmado no Google Maps, como \"Estética Corpo & Pele\")",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o WhatsApp (wa.me).",
+  digital:"17 anos de mercado; 4,9/5 com 84 avaliações confirmadas no Google, elogiando peeling diamante/químico e massagens; investimento recorrente em matérias pagas no portal de notícias local.",
+  scoreBreak:{compra:1.6,lp:1.6,ticket:1.6,digital:1.3,semSite:1.5,contato:0.6},
+  pontosFortes:["4,9/5 com 84 avaliações confirmadas — nota muito alta e consistente","17 anos de mercado — negócio consolidado","Procedimentos de alto ticket (harmonização, rinomodelação, endolaser)"],
+  pontosFracos:["Instagram próprio não localizado com segurança nas buscas","Depende de matéria paga para divulgação em vez de canal próprio"],
+  dor:"17 anos de mercado e nota 4,9/84 no Google são uma credencial forte, mas toda divulgação depende de matérias pagas no portal de notícias — não existe página própria que sustente esse investimento a longo prazo.",
+  oportunidade:"Página de procedimento (harmonização facial / rinomodelação) que continue convertendo depois que a matéria patrocinada sair do ar.",
+  offerName:"Landing Page de Procedimento",
+  offerStruct:"Hero do procedimento em destaque → antes/depois → sobre a especialista (16-17 anos) → formulário de avaliação gratuita.",
+  pitch:"Vocês têm nota 4,9 com 84 avaliações no Google e investem em matéria paga no jornal local há anos — isso mostra que marketing funciona pra clínica. Mas a matéria some do ar e o investimento não continua trabalhando depois. Uma página própria do procedimento continuaria convertendo o ano inteiro.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração do investimento que já é feito em mídia paga."}],
+  motivoNota:"4,9/5 com 84 avaliações confirmadas, 17 anos de mercado, alto ticket, nenhum site próprio identificado.",
+  faltaConfirmar:"Perfil de Instagram próprio (se existir).",
+  sources:[{label:"Google Maps (4,9/5, 84 avaliações)",url:"https://www.google.com/maps/search/Cl%C3%ADnica+Corpo+e+Pele+Campo+Grande+MS"},{label:"Campo Grande News",url:"https://www.campograndenews.com.br/conteudo-patrocinado/clinica-corpo-pele-resgata-a-juventude-com-protocolo-inovador"}]
+},
+{
+  id:"marq-arquitetura", tier:"warm", score:8.2, name:"MARQ Arquitetura & Construção",
+  niche:"Construção/Casa", subniche:"Reformas, construções e projetos de interiores", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:9,
+  address:"Edifício The Place Corporate, Torre 01 — Av. Afonso Pena, 4785, Sl 205, Santa Fé, Campo Grande/MS",
+  phone:"(67) 98462-7994", whatsapp:"(67) 98462-7994",
+  instagram:{handle:"@marq.arquitetura", followers:"6 mil"}, google:"5,0 de 5 com 9 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para bit.ly e beacons.ai (agregadores de link, não site próprio).",
+  digital:"Fundada em 2016 por Gustavo Landgraf e Mateus Sarturato; 6 mil seguidores no Instagram; 5,0/5 com 9 avaliações confirmadas no Google, incluindo cliente que já contratou a MARQ em duas obras diferentes.",
+  scoreBreak:{compra:1.6,lp:1.7,ticket:1.8,digital:1.0,semSite:1.5,contato:0.6},
+  pontosFortes:["Escritório formal desde 2016, endereço em edifício corporativo de referência","5,0/5 com 9 avaliações confirmadas — inclusive cliente recorrente","Atua em reformas, construção e interiores — ticket alto e recorrente"],
+  pontosFracos:["Usa apenas links agregadores (bit.ly/beacons.ai) em vez de site ou até Instagram direto — presença digital fragmentada"],
+  dor:"Reformas e construções de padrão elevado dependem de confiança visual — mas o portfólio da MARQ está disperso entre Instagram e links agregadores, sem uma vitrine própria que organize antes/depois por tipo de projeto.",
+  oportunidade:"Página de portfólio com formulário de orçamento, destacando reformas e projetos de interiores concluídos.",
+  offerName:"Landing Page de Portfólio + Orçamento",
+  offerStruct:"Hero com reforma de destaque → portfólio por tipo (reforma/construção/interiores) → formulário de orçamento.",
+  pitch:"Vocês têm um escritório formal desde 2016, nota 5,0 no Google e atuam em reforma, construção e interiores — um combo raro. Uma página própria organizaria esse portfólio e captaria orçamento direto de quem pesquisa no Google, em vez de depender de um link agregador.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração de uma única reforma."}],
+  motivoNota:"Escritório formal desde 2016, 5,0/5 com 9 avaliações confirmadas, alto ticket, nenhum site próprio identificado (só agregadores de link).",
+  faltaConfirmar:"Nada crítico — dados já bem confirmados.",
+  sources:[{label:"Instagram @marq.arquitetura",url:"https://www.instagram.com/marq.arquitetura/"},{label:"Google Maps (5,0/5, 9 avaliações)",url:"https://www.google.com/maps/search/MARQ+Arquitetura+Constru%C3%A7%C3%A3o+Campo+Grande+MS"}]
+},
+{
+  id:"oasis-eventos", tier:"backup", score:7.9, name:"Oásis Eventos",
+  niche:"Eventos", subniche:"Espaço para eventos corporativos e festas", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:null,
+  address:"Rua Goiânia, 520 — Jardim Imá, Campo Grande/MS (não localizado como perfil de empresa no Google Maps)",
+  phone:"(67) 99214-8375", whatsapp:"(67) 99214-8375",
+  instagram:{handle:"@oasiseventoscg", followers:"12 mil"}, google:"Não encontrado nas fontes consultadas",
+  site:"none", siteNote:"Nenhum site próprio identificado nas buscas realizadas.",
+  digital:"Espaço para eventos corporativos e festas com 12 mil seguidores no Instagram, atendimento administrativo em horário comercial.",
+  scoreBreak:{compra:1.5,lp:1.6,ticket:1.6,digital:1.1,semSite:1.5,contato:0.6},
+  pontosFortes:["12 mil seguidores no Instagram","Atua tanto em eventos corporativos quanto festas — dois públicos"],
+  pontosFracos:["Sem avaliações do Google encontradas","Contato indireto (equipe administrativa)"],
+  dor:"Atende dois públicos valiosos (corporativo e festas) mas não tem uma página que apresente a estrutura separadamente para cada um — hoje tudo se mistura num único perfil de Instagram.",
+  oportunidade:"Página segmentada por tipo de evento (corporativo x festas) com formulário de consulta de data.",
+  offerName:"Landing Page Institucional de Eventos",
+  offerStruct:"Hero com o espaço → segmentação corporativo/festas → estrutura → formulário \"consultar disponibilidade\".",
+  pitch:"Vocês atendem tanto empresa quanto festa de aniversário — são públicos com necessidades bem diferentes. Uma página que separe as duas coisas ajudaria cada visitante a se identificar mais rápido e pedir orçamento.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que a decoração de um único evento."}],
+  motivoNota:"Quase lá: falta confirmar avaliações no Google para consolidar a nota acima de 8.",
+  faltaConfirmar:"Avaliações de clientes no Google.",
+  sources:[{label:"Instagram @oasiseventoscg",url:"https://www.instagram.com/oasiseventoscg/"}]
+},
+{
+  id:"construcoes-residenciais", tier:"backup", score:7.9, name:"Construções Residenciais (reformassemgrilo)",
+  niche:"Construção/Casa", subniche:"Construção e reforma residencial", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:null,
+  address:"Não confirmado com precisão nas fontes consultadas — Campo Grande/MS",
+  phone:"Não encontrado nas fontes consultadas", whatsapp:"Via Instagram",
+  instagram:{handle:"@reformassemgrilo", followers:"8,6 mil"}, google:"Não encontrado nas fontes consultadas",
+  site:"none", siteNote:"Nenhum site próprio identificado nas buscas realizadas.",
+  digital:"Mais de 100 obras concluídas divulgadas; oferece orçamento gratuito; 8,6 mil seguidores no Instagram.",
+  scoreBreak:{compra:1.5,lp:1.6,ticket:1.7,digital:1.0,semSite:1.5,contato:0.6},
+  pontosFortes:["Mais de 100 obras concluídas — forte prova social","8,6 mil seguidores no Instagram"],
+  pontosFracos:["Sem avaliações do Google encontradas","Sem endereço físico confirmado"],
+  dor:"Mais de 100 obras concluídas é uma prova social forte, mas está espalhada em posts do Instagram sem organização — não há como o visitante comparar obras por tipo ou tamanho de projeto.",
+  oportunidade:"Página de portfólio organizando as +100 obras por categoria, com formulário de orçamento gratuito em destaque.",
+  offerName:"Landing Page de Portfólio + Orçamento",
+  offerStruct:"Hero citando as +100 obras → portfólio por categoria → como funciona o orçamento gratuito → formulário de contato.",
+  pitch:"Mais de 100 obras concluídas é uma credencial enorme — mas hoje isso está perdido em posts antigos do Instagram. Uma página que organize esse portfólio aproveitaria muito melhor essa prova social.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — muito menos que uma única obra."}],
+  motivoNota:"Quase lá: falta confirmar avaliações no Google para consolidar a nota acima de 8.",
+  faltaConfirmar:"Avaliações de clientes e endereço físico.",
+  sources:[{label:"Instagram @reformassemgrilo",url:"https://www.instagram.com/reformassemgrilo/"}]
+},
+{
+  id:"recanto-do-sabia", tier:"hot", score:9.0, name:"Recanto do Sabiá",
+  niche:"Eventos", subniche:"Chácara urbana para casamentos ao ar livre", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Alta", reviews:559,
+  address:"R. da Candelária, 105 — Vila Ipiranga, Campo Grande/MS",
+  phone:"(67) 99999-6086", whatsapp:"(67) 99999-6086",
+  instagram:{handle:"@recantodosabiacg", followers:"Não encontrado"}, google:"4,8 de 5 com 559 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o Facebook. Existe um \"Recanto dos Sabiás\" homônimo em Guarulhos/SP com site próprio, que não deve ser confundido com este espaço de Campo Grande.",
+  digital:"Mais de 2.000 m², pacotes de casamento divulgados entre R$4,9 mil e R$7,2 mil em matérias do Campo Grande News; capacidade para 200 pessoas; 4,8/5 com 559 avaliações confirmadas — uma das maiores e melhores bases de avaliação de todo o radar, com a proprietária respondendo pessoalmente quase todas as avaliações com muito carinho.",
+  scoreBreak:{compra:1.7,lp:1.7,ticket:1.7,digital:1.5,semSite:1.5,contato:0.7},
+  pontosFortes:["4,8/5 com 559 avaliações — uma das provas sociais mais fortes de todo o radar","Pacotes de preço já validados publicamente (R$4,9-7,2 mil)","Espaço grande (2.000m², até 200 pessoas) com identidade visual própria (\"charme do campo na cidade\")","Proprietária engajada, responde avaliações pessoalmente — fácil abordagem"],
+  pontosFracos:["Depende de matérias pagas em portal de notícias para divulgação, além do Google/Facebook"],
+  dor:"Os pacotes de casamento já têm preço público e apelo forte (\"casamento dos sonhos por R$4,9 mil\"), além de 559 avaliações no Google, mas essa prova toda só aparece em matérias patrocinadas pontuais e no Facebook — não existe uma página permanente com essas informações.",
+  oportunidade:"Página permanente com os pacotes, a prova social das 559 avaliações e formulário de consulta de data, substituindo a dependência de mídia paga pontual.",
+  offerName:"Landing Page de Pacotes de Casamento",
+  offerStruct:"Hero com o espaço florido e nota 4,8/559 avaliações → pacotes por faixa de preço → galeria de casamentos realizados → formulário de consulta de data.",
+  pitch:"Vocês têm quase 560 avaliações no Google com nota 4,8 — isso é uma prova social gigante, muito acima da maioria dos espaços de evento daqui. Uma página permanente com esses pacotes e essa reputação captaria pedidos o ano inteiro, não só quando sai uma matéria nova no jornal.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — muito menos que um único pacote de casamento vendido."}],
+  motivoNota:"4,8/5 com 559 avaliações confirmadas (uma das maiores provas sociais do radar), pacotes de alto ticket já validados publicamente, nenhum site identificado.",
+  faltaConfirmar:"Nada crítico — dados já muito bem confirmados.",
+  sources:[{label:"Google Maps (4,8/5, 559 avaliações)",url:"https://www.google.com/maps/search/Recanto+do+Sabi%C3%A1+Campo+Grande+MS"},{label:"Campo Grande News",url:"https://www.campograndenews.com.br/conteudo-patrocinado/recanto-do-sabia-e-chacara-urbana-com-casamento-perfeito-por-7-2-mil"}]
+},
+{
+  id:"spazio-salute", tier:"backup", score:7.3, name:"Spazio Salute Fisioterapia",
+  niche:"Saúde/Estética", subniche:"Fisioterapia ortopédica e dermatofuncional", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Média", reviews:34,
+  address:"R. Espírito Santo, 1146 — Jardim dos Estados, Campo Grande/MS",
+  phone:"(67) 99943-8740", whatsapp:"(67) 99943-8740",
+  instagram:{handle:"@spaziosalute", followers:"9,4 mil"}, google:"4,7 de 5 com 34 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para um documento do Google Drive.",
+  digital:"Clínica desde 2006 com 2 unidades; oferece fisioterapia ortopédica, dermatofuncional e esportiva.",
+  scoreBreak:{compra:1.5,lp:1.5,ticket:1.2,digital:1.1,semSite:1.5,contato:0.5},
+  pontosFortes:["19 anos de mercado, 2 unidades","9,4 mil seguidores no Instagram"],
+  pontosFracos:["Ticket por sessão é moderado","Contato via equipe, não profissional específico"],
+  dor:"Com 2 unidades e quase 20 anos de mercado, a clínica ainda depende só do Instagram para explicar a diferença entre suas 3 especialidades (ortopédica, dermatofuncional, esportiva) para quem não sabe qual procurar.",
+  oportunidade:"Página que separe claramente as especialidades e direcione cada visitante para o tratamento certo.",
+  offerName:"Landing Page Institucional",
+  offerStruct:"Hero institucional → as 3 especialidades explicadas → as 2 unidades → formulário de agendamento.",
+  pitch:"Vocês têm quase 20 anos de mercado e 3 especialidades diferentes — mas isso não fica claro pra quem chega pelo Instagram. Uma página que explique cada especialidade ajudaria o paciente a se decidir e agendar mais rápido.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — o equivalente a poucas sessões."}],
+  motivoNota:"Quase lá: ticket moderado por sessão limita a nota; boa presença digital e histórico de mercado.",
+  faltaConfirmar:"Avaliações de clientes no Google.",
+  sources:[{label:"Instagram @spaziosalute",url:"https://www.instagram.com/spaziosalute/"}]
+},
+{
+  id:"unika-boutique", tier:"backup", score:7.3, name:"Únika Boutique",
+  niche:"Outros", subniche:"Moda feminina — catálogo digital", offer:"Catálogo Digital",
+  ticket:"Médio", highTicket:false, contactEase:"Baixa", reviews:32,
+  address:"Rua Vicente Pinzon, 293 — Vila Planalto, Campo Grande/MS",
+  phone:"(67) 99164-7969", whatsapp:"(67) 99164-7969",
+  instagram:{handle:"@unika_boutique_ms", followers:"37 mil"}, google:"4,9 de 5 com 32 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o Instagram; vende via Instagram/WhatsApp e envia para todo o Brasil.",
+  digital:"37 mil seguidores, mais de 10.000 clientes atendidos, envio para todo o Brasil.",
+  scoreBreak:{compra:1.6,lp:1.3,ticket:0.9,digital:1.5,semSite:1.5,contato:0.5},
+  pontosFortes:["37 mil seguidores e envio nacional — operação de porte real","Mais de 10.000 clientes já atendidos"],
+  pontosFracos:["Ticket por peça é médio, não alto","Contato indireto, alto volume de mensagens"],
+  dor:"Envia para o Brasil inteiro e tem 37 mil seguidores, mas todo o catálogo vive espalhado em posts e stories — quem chega de fora de Campo Grande não tem como navegar pelas peças disponíveis sem rolar o feed inteiro.",
+  oportunidade:"Catálogo digital navegável por categoria (vestidos, conjuntos, acessórios) com pedido direto pelo WhatsApp.",
+  offerName:"Catálogo Digital",
+  offerStruct:"Hero da coleção atual → categorias navegáveis → tabela de tamanhos → pedido direto via WhatsApp.",
+  pitch:"Vocês já vendem pro Brasil inteiro pelo Instagram — isso é raro. Um catálogo digital organizado por categoria facilitaria muito a vida de quem compra de fora de Campo Grande e não quer rolar o feed inteiro procurando uma peça.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$1.500 para um catálogo digital — muito menos que a margem de poucas vendas."}],
+  motivoNota:"Quase lá: alto alcance digital, mas ticket médio por peça limita a nota abaixo dos serviços de alto ticket do radar.",
+  faltaConfirmar:"Avaliações de clientes e ticket médio real por pedido.",
+  sources:[{label:"Instagram @unika_boutique_ms",url:"https://www.instagram.com/unika_boutique_ms/"}]
+},
+{
+  id:"sua-festa-cg", tier:"backup", score:7.9, name:"Sua Festa CG",
+  niche:"Eventos", subniche:"Locação de decoração para festas", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Baixa", reviews:39,
+  address:"R. Amazonas, 1489 — Monte Castelo, Campo Grande/MS",
+  phone:"(67) 99205-9615", whatsapp:"(67) 99205-9615",
+  instagram:{handle:"@suafestacg", followers:"122 mil"}, google:"4,6 de 5 com 39 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas o botão \"Adicionar website\" (não preenchido), confirmando ausência de site próprio.",
+  digital:"122 mil seguidores no Instagram; 4,6/5 com 39 avaliações no Google (confirmado) — loca móveis, bolos cenográficos e flores permanentes para festas.",
+  scoreBreak:{compra:1.6,lp:1.5,ticket:1.3,digital:1.5,semSite:1.5,contato:0.5},
+  pontosFortes:["122 mil seguidores — segunda maior audiência de todo o radar","4,6/5 com 39 avaliações confirmadas no Google","Catálogo de aluguel amplo (móveis, bolos cenográficos, flores)"],
+  pontosFracos:["Ticket por locação é moderado, não altíssimo","Alto volume de mensagens dificulta atendimento individual"],
+  dor:"Com 122 mil seguidores, o catálogo de itens para locação está todo disperso em posts e stories — quem quer montar uma festa não consegue ver de uma vez só o que está disponível para alugar.",
+  oportunidade:"Catálogo digital dos itens de locação organizado por categoria (móveis, bolos cenográficos, flores) com pedido de orçamento direto.",
+  offerName:"Catálogo Digital",
+  offerStruct:"Hero com um cenário montado → catálogo por categoria de item → como funciona a locação → formulário de orçamento por data.",
+  pitch:"122 mil seguidores é uma das maiores audiências que vi em todo esse radar. Só que hoje, quem quer montar uma festa não tem como ver o catálogo completo de uma vez — um catálogo digital organizaria isso e reduziria as mensagens repetidas perguntando 'o que vocês têm disponível'.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$1.500 para um catálogo digital — muito menos que a receita de uma única festa grande."}],
+  motivoNota:"Quase lá: altíssimo alcance digital e 4,6/5 com 39 avaliações confirmadas, mas ticket por locação individual é moderado, limitando a nota.",
+  faltaConfirmar:"Ticket médio real por evento.",
+  sources:[{label:"Instagram @suafestacg",url:"https://www.instagram.com/suafestacg/"},{label:"Google Maps (4,6/5, 39 avaliações)",url:"https://www.google.com/maps/search/Sua+Festa+CG+Campo+Grande+MS"}]
+},
+{
+  id:"adestrador-kawano", tier:"backup", score:7.9, name:"Adestrador Kawano",
+  niche:"Outros", subniche:"Adestramento canino e felino em domicílio", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Alta", reviews:null,
+  address:"Atendimento em domicílio — Campo Grande/MS",
+  phone:"Não encontrado nas fontes consultadas", whatsapp:"Via Instagram",
+  instagram:{handle:"@adestrador_kawano", followers:"32 mil"}, google:"Não encontrado nas fontes consultadas",
+  site:"none", siteNote:"Nenhum site próprio identificado — presença via Instagram e Facebook.",
+  digital:"Pós-graduando em etologia animal, cursando medicina veterinária; 32 mil seguidores — presença excepcional para um profissional autônomo do nicho.",
+  scoreBreak:{compra:1.3,lp:1.6,ticket:1.1,digital:1.5,semSite:1.5,contato:0.9},
+  pontosFortes:["32 mil seguidores — um dos maiores públicos de profissional solo de todo o radar","Formação técnica em etologia reforça a autoridade","Atendimento domiciliar facilita a venda de pacotes"],
+  pontosFracos:["Ticket por pacote é médio, não altíssimo","Sem avaliações formais encontradas"],
+  dor:"32 mil seguidores comprovam autoridade no assunto, mas não existe uma página que explique os pacotes de adestramento e a metodologia com clareza — hoje o interessado precisa mandar direct para entender o processo.",
+  oportunidade:"Página explicando a metodologia, os pacotes de adestramento domiciliar e um formulário de avaliação inicial do comportamento do animal.",
+  offerName:"Landing Page de Autoridade + Pacotes",
+  offerStruct:"Hero explicando a metodologia → pacotes de adestramento → formação do profissional → formulário de avaliação inicial.",
+  pitch:"32 mil seguidores é uma baita prova de autoridade no assunto. Uma página que explique os pacotes e a metodologia ajudaria a converter esse público em avaliações agendadas, sem depender só do direct.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — o equivalente a um único pacote de adestramento."}],
+  motivoNota:"Quase lá: 32 mil seguidores (excepcional para profissional solo), mas ticket por pacote é médio, limitando a nota.",
+  faltaConfirmar:"Avaliações de clientes e valor médio dos pacotes.",
+  sources:[{label:"Instagram @adestrador_kawano",url:"https://www.instagram.com/adestrador_kawano/"}]
+},
+{
+  id:"luminar-solar", tier:"backup", score:5.5, name:"⚠ Luminar Energia Solar (risco reputacional)",
+  niche:"Casa/Construção", subniche:"Energia fotovoltaica residencial/comercial", offer:"Landing Page",
+  ticket:"Altíssimo", highTicket:true, contactEase:"Baixa", reviews:36,
+  address:"Rua Eduardo Santos Pereira, 2183 — Cruzeiro, Campo Grande/MS",
+  phone:"(67) 99617-4900", whatsapp:"(67) 99617-4900",
+  instagram:{handle:"@energiasolar.luminar", followers:"2,3 mil"}, google:"3,7 de 5 com 36 avaliações — VER ALERTA",
+  site:"none", siteNote:"Nenhum site próprio identificado — mas o problema aqui não é o site.",
+  digital:"NÃO RECOMENDADO PARA ABORDAGEM SEM CONFIRMAR A SITUAÇÃO ANTES. O Google Maps mostra nota 3,7/5 (36 avaliações) com múltiplas reclamações recentes (últimos 3-6 meses) de clientes que pagaram e não receberam o sistema instalado, citando o sócio Fábio Teno nominalmente por recusa de reembolso. A ficha no Google ainda nem foi reivindicada pela empresa (\"Reivindicar esta empresa\"). Isso é um padrão de risco financeiro/reputacional, não só falta de marketing.",
+  scoreBreak:{compra:0.6,lp:0.8,ticket:2.0,digital:0.2,semSite:1.5,contato:0.4},
+  pontosFortes:["Ticket altíssimo por sistema (se a empresa realmente entregasse)","~500 projetos alegados desde 2011 (dado não confirmável dado o contexto)"],
+  pontosFracos:["Múltiplas reclamações recentes e graves de não-entrega após pagamento","Sócio citado nominalmente por recusar reembolso","Ficha do Google não reivindicada pela empresa","Risco de prospectar uma empresa com problemas financeiros/legais em curso"],
+  dor:"Não aplicável neste momento — antes de qualquer proposta de marketing, esta empresa parece ter um problema mais urgente de entrega/reputação a resolver.",
+  oportunidade:"Não recomendamos investir tempo aqui nesta rodada. Se decidir ligar mesmo assim, vale perguntar diretamente sobre as reclamações antes de apresentar qualquer proposta — uma landing page não resolve um problema de confiança dessa gravidade.",
+  offerName:"Não recomendado nesta rodada",
+  offerStruct:"—",
+  pitch:"Não recomendamos usar um pitch de vendas aqui sem antes entender a situação real da empresa.",
+  objections:[{q:"Por que este lead está no radar então?",a:"Para registrar com transparência que foi investigado e por que foi desqualificado — evita que ele reapareça como \"novo\" numa rodada futura."}],
+  motivoNota:"Nota rebaixada de 8,4 (estimativa inicial via Instagram) para 5,5 após checagem no Google Maps revelar reclamações graves e recentes de não-entrega. Mantido apenas arquivado para registro — não recomendado para prospecção nesta rodada.",
+  faltaConfirmar:"Se as reclamações foram resolvidas publicamente — reverificar antes de reconsiderar este lead no futuro.",
+  sources:[{label:"Google Maps (3,7/5, 36 avaliações — ver reclamações)",url:"https://www.google.com/maps/search/Luminar+Energia+Solar+Campo+Grande+MS"},{label:"Instagram @energiasolar.luminar",url:"https://www.instagram.com/energiasolar.luminar/"}]
+},
+{
+  id:"pantanal-beach-sports", tier:"backup", score:7.5, name:"Pantanal Beach Sports",
+  niche:"Fitness", subniche:"Arena de beach tennis, futevôlei e vôlei de praia", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Média", reviews:118,
+  address:"Rua Júpiter, 829 — Vila Planalto, Campo Grande/MS",
+  phone:"(67) 9253-7825", whatsapp:"(67) 9253-7825",
+  instagram:{handle:"@pantanalbeachsports", followers:"16 mil"}, google:"4,8 de 5 com mais de 118 avaliações",
+  site:"none", siteNote:"Nenhum site próprio identificado nas buscas realizadas.",
+  digital:"Maior estrutura de beach sports do MS (7 quadras); 16 mil seguidores no Instagram; 4,8/5 com mais de 118 avaliações no Google — uma das avaliações mais fortes de todo o radar.",
+  scoreBreak:{compra:1.5,lp:1.5,ticket:1.2,digital:1.3,semSite:1.5,contato:0.5},
+  pontosFortes:["4,8/5 com 118 avaliações — prova social muito forte e verificada","Maior estrutura do MS (7 quadras)","16 mil seguidores no Instagram"],
+  pontosFracos:["Ticket por aula/locação de quadra é moderado","Contato via equipe, não com um responsável específico"],
+  dor:"Com a maior estrutura do estado e quase 120 avaliações no Google, a Arena já tem prova social muito forte — mas não existe uma página que centralize agenda de quadras, pacotes de aula e day use num só lugar.",
+  oportunidade:"Página com agenda/reserva de quadras, pacotes de aula e day use, aproveitando a reputação já validada no Google.",
+  offerName:"Landing Page de Reservas",
+  offerStruct:"Hero com a arena → quadras e modalidades → pacotes de aula → formulário de reserva/day use.",
+  pitch:"Vocês têm a maior estrutura de beach sports do MS e quase 120 avaliações de 4,8 no Google — uma reputação que poucos lugares têm. Uma página com reserva de quadra direto pelo site aproveitaria muito melhor esse tráfego que já confia em vocês.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — muito menos que a receita de poucos dias de reservas."}],
+  motivoNota:"Quase lá: avaliação excelente e verificada (4,8/118), mas ticket por reserva/aula é moderado, limitando a nota.",
+  faltaConfirmar:"Ticket médio real por aula/pacote mensal.",
+  sources:[{label:"Instagram @pantanalbeachsports",url:"https://www.instagram.com/pantanalbeachsports/"},{label:"Foco Radical",url:"https://www.focoradical.com.br/prova/20250831-pantanal-beach-sports-campo-grande-18948"}]
+},
+{
+  id:"buffet-galinze", tier:"hot", score:9.0, name:"Buffet Galinzé Quintal (Aventura)",
+  niche:"Eventos", subniche:"Buffet infantil temático", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Alta", reviews:824,
+  address:"R. Luís Charbel, 622 — Jardim Mansur, Campo Grande/MS (mudou de endereço; novo espaço tem 2 salões)",
+  phone:"(67) 99232-3131", whatsapp:"(67) 99232-3131",
+  instagram:{handle:"@buffetgalinze", followers:"14 mil"}, google:"4,8 de 5 com 824 avaliações (confirmado no Google Maps) — uma das maiores bases de avaliação de todo o radar",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business mostra apenas \"Adicionar website\" (não preenchido).",
+  digital:"Mais de 10 anos de atuação; posiciona-se como o primeiro \"buffet alternativo\" de Campo Grande (proposta lúdica, sem eletrônicos); 4,8/5 com 824 avaliações confirmadas — volume de avaliações raríssimo, mostrando altíssima recorrência de clientes.",
+  scoreBreak:{compra:1.8,lp:1.7,ticket:1.6,digital:1.5,semSite:1.5,contato:0.7},
+  pontosFortes:["4,8/5 com 824 avaliações — a maior base de avaliações de todo o radar","Posicionamento diferenciado (\"primeiro buffet alternativo\") há mais de 10 anos","14 mil seguidores no Instagram + novo espaço com 2 salões"],
+  pontosFracos:["Ticket por festa é médio-alto, não altíssimo (mas o volume de clientes compensa)"],
+  dor:"824 avaliações positivas são uma prova social rara, mas não existe uma página que explique a proposta lúdica (sem eletrônicos) antes do primeiro contato — hoje isso só aparece disperso em posts do Instagram.",
+  oportunidade:"Página que explique o conceito \"alternativo\" (sem eletrônicos), mostre a prova social das 824 avaliações e os pacotes do novo espaço com 2 salões.",
+  offerName:"Landing Page de Pacotes de Festa",
+  offerStruct:"Hero explicando o conceito alternativo e a nota 4,8/824 avaliações → fotos do novo espaço → pacotes → formulário de consulta de data.",
+  pitch:"Vocês têm 824 avaliações no Google com nota 4,8 — isso é um volume de prova social que praticamente nenhum buffet infantil daqui tem. Uma página que explique bem a proposta \"alternativa\" e mostre essa reputação ajudaria a converter ainda mais rápido quem já está decidido a conhecer o espaço novo.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que uma única festa."}],
+  motivoNota:"4,8/5 com 824 avaliações confirmadas (maior volume de avaliações do radar), posicionamento diferenciado de mais de 10 anos, nenhum site identificado.",
+  faltaConfirmar:"Nada crítico — dados já muito bem confirmados.",
+  sources:[{label:"Instagram @buffetgalinze",url:"https://www.instagram.com/buffetgalinze/"},{label:"Google Maps (4,8/5, 824 avaliações)",url:"https://www.google.com/maps/search/Buffet+Galinz%C3%A9+Aventura+Campo+Grande+MS"}]
+},
+{
+  id:"floresta-kids", tier:"warm", score:8.2, name:"Floresta Kids",
+  niche:"Eventos", subniche:"Espaço de festas infantis", offer:"Landing Page",
+  ticket:"Alto", highTicket:true, contactEase:"Média", reviews:186,
+  address:"R. José Eduardo Rolim, 197 — Chácara Cachoeira, Campo Grande/MS",
+  phone:"(67) 99989-4791", whatsapp:"(67) 99989-4791",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:"13 mil (referência em busca anterior)"}, google:"4,4 de 5 com 186 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para um linktr.ee (agregador de link).",
+  digital:"800 m² de salão climatizado, capacidade para até 170 convidados; 4,4/5 com 186 avaliações confirmadas; investe recorrentemente em matérias pagas no portal de notícias local.",
+  scoreBreak:{compra:1.6,lp:1.6,ticket:1.7,digital:1.3,semSite:1.5,contato:0.5},
+  pontosFortes:["4,4/5 com 186 avaliações confirmadas","800 m² e capacidade para 170 convidados — um dos maiores espaços infantis pesquisados","Investe recorrentemente em mídia paga (orçamento de marketing ativo)"],
+  pontosFracos:["Perfil de Instagram não confirmado com segurança","Usa linktr.ee em vez de site ou até Instagram direto"],
+  dor:"Assim como a Clínica Corpo & Pele, o Floresta Kids investe em matérias patrocinadas recorrentes, mas essas matérias somem do ar — não existe uma página permanente com a estrutura de 800m², as 186 avaliações e os pacotes disponíveis.",
+  oportunidade:"Página permanente que continue convertendo depois que cada matéria patrocinada sair do ar, substituindo o linktr.ee genérico.",
+  offerName:"Landing Page de Pacotes de Festa",
+  offerStruct:"Hero com o espaço de 800m² e nota 4,4/186 avaliações → estrutura e atrações → pacotes → formulário de consulta de data.",
+  pitch:"Vocês já investem em matéria paga no portal de notícias e têm 186 avaliações com nota 4,4 — isso mostra que o marketing e o atendimento funcionam. Mas a matéria some do ar e hoje só existe um linktr.ee genérico. Uma página permanente com a estrutura de 800m² continuaria convertendo o ano inteiro.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — uma fração do investimento já feito em mídia paga."}],
+  motivoNota:"4,4/5 com 186 avaliações confirmadas, espaço de 800m² para 170 convidados, alto ticket, nenhum site próprio identificado.",
+  faltaConfirmar:"Perfil de Instagram confirmado.",
+  sources:[{label:"Google Maps (4,4/5, 186 avaliações)",url:"https://www.google.com/maps/search/Floresta+Kids+Buffet+Infantil+Campo+Grande+MS"},{label:"Campo Grande News",url:"https://www.campograndenews.com.br/conteudo-patrocinado/floresta-kids-celebra-3-anos-com-pacotes-e-brindes-imperdiveis"}]
+}
+];
+
+const STATUS_OPTS = ["Novo","Pesquisar","Ligar","WhatsApp enviado","Conversando","Reunião marcada","Proposta enviada","Negociação","Fechado","Perdido"];
+const STORE_KEY = "radarcg_status_v1";
+function loadStatus(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||{}; }catch(e){ return {}; } }
+function saveStatus(map){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(map)); }catch(e){} }
+let statusMap = loadStatus();
+function getStatus(id){ return statusMap[id] || "Novo"; }
+function setStatus(id, val){ statusMap[id]=val; saveStatus(statusMap); }
+
+const tierLabel = { hot:"🔥 HOT", warm:"🟠 WARM", backup:"⚪ BACKUP" };
+function tierOfScore(s){ return s>=9?"hot":(s>=8?"warm":"backup"); }
+function fmtScore(s){ return s.toFixed(1); }
+
+let state = { scoreMin:8, offer:"all", ticket:"all", niche:"all", sort:"score_desc" };
+
+function populateNicheSelect(){
+  const sel = document.getElementById("nicheSelect");
+  const set = [...new Set(LEADS.map(l=>l.niche))].sort();
+  set.forEach(n=>{ const o=document.createElement("option"); o.value=n; o.textContent=n; sel.appendChild(o); });
+}
+
+function ticketRank(t){ return {"Baixo":1,"Médio":2,"Médio-Alto":3,"Alto":4,"Altíssimo":5}[t]||0; }
+function contactRank(c){ return {"Baixa":1,"Média":2,"Alta":3}[c]||0; }
+
+function filterSort(list){
+  let out = list.filter(l=>{
+    if(l.score < state.scoreMin) return false;
+    if(state.offer!=="all" && l.offer!==state.offer) return false;
+    if(state.ticket!=="all" && l.ticket!==state.ticket) return false;
+    if(state.niche!=="all" && l.niche!==state.niche) return false;
+    return true;
+  });
+  out.sort((a,b)=>{
+    switch(state.sort){
+      case "ticket_desc": return ticketRank(b.ticket)-ticketRank(a.ticket) || b.score-a.score;
+      case "reviews_desc": return (b.reviews||0)-(a.reviews||0) || b.score-a.score;
+      case "contact_desc": return contactRank(b.contactEase)-contactRank(a.contactEase) || b.score-a.score;
+      case "name_asc": return a.name.localeCompare(b.name);
+      default: return b.score-a.score;
+    }
+  });
+  return out;
+}
+
+function siteBadge(l){
+  return `<span class="badge site-none">SEM SITE</span>`;
+}
+function scoreColor(l){ return l.tier==="hot" ? "var(--hot)" : (l.tier==="warm" ? "var(--warm)" : "var(--backup)"); }
+function telLink(phone){
+  if(!phone || phone.startsWith("Não encontrado")) return phone;
+  const tel = phone.replace(/[^\d+]/g,"");
+  return `<a href="tel:${tel}">${phone} ↗</a>`;
+}
+function waLink(phone){
+  if(!phone || phone.startsWith("Não encontrado") || phone.startsWith("Via Instagram")) return phone;
+  const digits = phone.replace(/[^\d]/g,"");
+  const withCountry = digits.startsWith("55") ? digits : "55"+digits;
+  return `<a href="https://wa.me/${withCountry}" target="_blank" rel="noopener">${phone} ↗</a>`;
+}
+function phoneRow(l){
+  const has = l.phone && !l.phone.startsWith("Não encontrado");
+  if(!has) return `<div class="card-phone card-phone--empty">📞 Telefone não encontrado</div>`;
+  const tel = l.phone.replace(/[^\d+]/g,"");
+  return `<a class="card-phone" href="tel:${tel}" onclick="event.stopPropagation()">📞 <span class="mono">${l.phone}</span><span class="call-hint">ligar</span></a>`;
+}
+
+function cardHTML(l){
+  const st = getStatus(l.id);
+  return `<article class="card ${l.tier==='backup'?'backup-card':''}" data-id="${l.id}" tabindex="0">
+    <div class="card-top">
+      <div class="card-id">
+        <div class="card-name" title="${l.name}">${l.name}</div>
+        <div class="card-niche">${l.niche} · ${l.subniche}</div>
+      </div>
+      <div class="card-score">
+        <div class="score-num mono" style="color:${scoreColor(l)}">${fmtScore(l.score)}</div>
+        <div class="score-max">/10</div>
+      </div>
+    </div>
+    <div class="badge-row">
+      <span class="badge tier-${l.tier}">${tierLabel[l.tier]}</span>
+      ${siteBadge(l)}
+      <span class="badge ticket">${l.ticket}</span>
+    </div>
+    ${phoneRow(l)}
+    <div class="card-row"><span>Instagram</span><b>${l.instagram.followers ? l.instagram.followers+' seg.' : 'não confirmado'}</b></div>
+    <div class="card-row"><span>Avaliações Google</span><b>${l.reviews ? l.reviews+' avaliações' : 'não encontradas'}</b></div>
+    <div class="card-pain">
+      <b>Dor principal</b>${l.dor}
+    </div>
+    ${l.tier==='backup' ? `<div class="backup-note">Falta confirmar: ${l.faltaConfirmar}</div>` : ""}
+    <div class="card-offer">
+      <span class="offer-tag">→ ${l.offerName}</span>
+      <span class="status-pill">${st}</span>
+    </div>
+  </article>`;
+}
+
+function render(){
+  const filtered = filterSort(LEADS.filter(l=>l.tier!=="backup"));
+  const mainGrid = document.getElementById("mainGrid");
+  document.getElementById("mainCount").textContent = filtered.length + (filtered.length===1?" empresa":" empresas");
+  mainGrid.innerHTML = filtered.length ? filtered.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa com essa combinação de filtros. Ajuste a nota mínima ou o nicho.</div>`;
+
+  const backups = filterSort(LEADS.filter(l=>l.tier==="backup"));
+  document.getElementById("backupGrid").innerHTML = backups.length ? backups.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa em validação com essa combinação de filtros.</div>`;
+  document.getElementById("backupHint").textContent = LEADS.filter(l=>l.tier==='backup').length + " empresas entre 7,0–7,9 — reais, mas falta 1 dado (avaliações/Instagram) para confirmar nota ≥ 8.";
+
+  document.querySelectorAll(".card").forEach(c=>{
+    c.addEventListener("click", ()=>openPanel(c.dataset.id));
+    c.addEventListener("keydown", e=>{ if(e.key==="Enter") openPanel(c.dataset.id); });
+  });
+  renderKPIs();
+}
+
+function renderKPIs(){
+  const mainLeads = LEADS.filter(l=>l.tier!=="backup");
+  const total = LEADS.length;
+  const n9 = mainLeads.filter(l=>l.score>=9).length;
+  const n8 = mainLeads.filter(l=>l.score>=8 && l.score<9).length;
+  const semSite = LEADS.filter(l=>l.site==="none").length;
+  const highTicket = LEADS.filter(l=>l.highTicket).length;
+  const best = LEADS.reduce((a,b)=> b.score>a.score?b:a, LEADS[0]);
+  document.getElementById("kpiRow").innerHTML = `
+    <div class="kpi spotlight">
+      <span class="kpi-label">Melhor oportunidade</span>
+      <span class="kpi-name">${best.name.split(' — ')[0]}</span>
+      <span class="mono kpi-score" style="font-size:13px;">nota ${fmtScore(best.score)} · ${best.niche}</span>
+    </div>
+    <div class="kpi"><span class="kpi-num mono">${total}</span><span class="kpi-label">Investigadas a fundo</span></div>
+    <div class="kpi"><span class="kpi-num mono" style="color:var(--hot)">${n9}</span><span class="kpi-label">Nota 9–10</span></div>
+    <div class="kpi"><span class="kpi-num mono" style="color:var(--warm)">${n8}</span><span class="kpi-label">Nota 8–8,9</span></div>
+    <div class="kpi"><span class="kpi-num mono" style="color:var(--good)">${semSite}</span><span class="kpi-label">Sem site confirmado</span></div>
+    <div class="kpi"><span class="kpi-num mono" style="color:var(--accent)">${highTicket}</span><span class="kpi-label">High ticket</span></div>
+  `;
+}
+
+function sbarRow(label, val, max){
+  const pct = (val/max)*100;
+  return `<div class="sbar-row"><span>${label}</span><div class="sbar-track"><div class="sbar-fill" style="width:${pct}%"></div></div><span class="mono">${val.toFixed(1)}/${max}</span></div>`;
+}
+
+function openPanel(id){
+  const l = LEADS.find(x=>x.id===id);
+  if(!l) return;
+  document.getElementById("pName").textContent = l.name;
+  document.getElementById("pBadges").innerHTML = `<span class="badge tier-${l.tier}">${tierLabel[l.tier]}</span><span class="badge site-none">SEM SITE</span><span class="badge ticket">${l.ticket}</span>`;
+
+  const body = document.getElementById("pBody");
+  body.innerHTML = `
+    <div class="pblock">
+      <h4>Identificação</h4>
+      <div class="kv"><span class="k">Nicho</span><span class="v">${l.niche} — ${l.subniche}</span></div>
+      <div class="kv"><span class="k">Endereço</span><span class="v mono">${l.address}</span></div>
+      <div class="kv"><span class="k">Telefone</span><span class="v mono">${telLink(l.phone)}</span></div>
+      <div class="kv"><span class="k">WhatsApp</span><span class="v mono">${waLink(l.whatsapp)}</span></div>
+      <div class="kv"><span class="k">Instagram</span><span class="v">${l.instagram.handle}${l.instagram.followers? ' · '+l.instagram.followers+' seguidores':''}</span></div>
+      <div class="kv"><span class="k">Google</span><span class="v">${l.google}</span></div>
+      <div class="kv"><span class="k">Site</span><span class="v">${l.siteNote}</span></div>
+    </div>
+
+    <div class="pblock">
+      <h4>Qualificação · nota ${fmtScore(l.score)}/10</h4>
+      <div class="score-bars">
+        ${sbarRow("Potencial de compra", l.scoreBreak.compra, 2)}
+        ${sbarRow("Necessidade de LP", l.scoreBreak.lp, 2)}
+        ${sbarRow("Ticket do serviço", l.scoreBreak.ticket, 2)}
+        ${sbarRow("Presença digital", l.scoreBreak.digital, 1.5)}
+        ${sbarRow("Ausência de site", l.scoreBreak.semSite, 1.5)}
+        ${sbarRow("Facilidade de contato", l.scoreBreak.contato, 1)}
+      </div>
+      <p class="reason-box" style="margin-top:10px;"><b>Motivo da nota:</b> ${l.motivoNota}</p>
+      ${l.faltaConfirmar? `<p class="reason-box"><b>Falta confirmar:</b> ${l.faltaConfirmar}</p>`:""}
+    </div>
+
+    <div class="pblock">
+      <h4>Presença digital</h4>
+      <p class="reason-box">${l.digital}</p>
+    </div>
+
+    <div class="pblock">
+      <h4>Diagnóstico</h4>
+      <div class="diag-grid">
+        <div class="diag-col pos"><h5>Pontos fortes</h5><ul>${l.pontosFortes.map(p=>`<li>${p}</li>`).join("")}</ul></div>
+        <div class="diag-col neg"><h5>Pontos fracos</h5><ul>${l.pontosFracos.map(p=>`<li>${p}</li>`).join("")}</ul></div>
+      </div>
+      <div class="pain-card" style="margin-top:12px;"><b>Dor principal</b>${l.dor}</div>
+      <div class="pain-card"><b>Oportunidade</b>${l.oportunidade}</div>
+    </div>
+
+    <div class="pblock">
+      <h4>Oferta recomendada</h4>
+      <div class="offer-card">
+        <div class="offer-name">${l.offerName}</div>
+        <div class="offer-struct">${l.offerStruct}</div>
+      </div>
+    </div>
+
+    <div class="pblock">
+      <h4>Argumento de venda / pitch de ligação</h4>
+      <div class="pitch-box">${l.pitch}</div>
+    </div>
+
+    <div class="pblock">
+      <h4>Objeções prováveis</h4>
+      ${l.objections.map(o=>`<div class="obj"><div class="q">${o.q}</div><div class="a">${o.a}</div></div>`).join("")}
+    </div>
+
+    <div class="pblock">
+      <h4>Fontes / evidências</h4>
+      <div class="src-list">${l.sources.map(s=>`<a class="src-chip" href="${s.url}" target="_blank" rel="noopener">${s.label} ↗</a>`).join("")}</div>
+    </div>
+
+    <div class="pblock">
+      <h4>Status de prospecção</h4>
+      <select class="status-select" id="statusSelect">
+        ${STATUS_OPTS.map(o=>`<option value="${o}" ${getStatus(l.id)===o?"selected":""}>${o}</option>`).join("")}
+      </select>
+    </div>
+  `;
+  document.getElementById("statusSelect").addEventListener("change", e=>{
+    setStatus(l.id, e.target.value);
+    render();
+  });
+  document.getElementById("overlay").classList.add("open");
+  document.getElementById("panel").classList.add("open");
+}
+function closePanel(){
+  document.getElementById("overlay").classList.remove("open");
+  document.getElementById("panel").classList.remove("open");
+}
+document.getElementById("overlay").addEventListener("click", closePanel);
+document.getElementById("pClose").addEventListener("click", closePanel);
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closePanel(); });
+
+document.querySelectorAll('.chip[data-f="score"]').forEach(b=>b.addEventListener("click", ()=>{
+  document.querySelectorAll('.chip[data-f="score"]').forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); state.scoreMin = Number(b.dataset.v); render();
+}));
+document.querySelectorAll('.chip[data-f="offer"]').forEach(b=>b.addEventListener("click", ()=>{
+  document.querySelectorAll('.chip[data-f="offer"]').forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); state.offer = b.dataset.v; render();
+}));
+document.querySelectorAll('.chip[data-f="ticket"]').forEach(b=>b.addEventListener("click", ()=>{
+  document.querySelectorAll('.chip[data-f="ticket"]').forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); state.ticket = b.dataset.v; render();
+}));
+document.getElementById("nicheSelect").addEventListener("change", e=>{ state.niche = e.target.value; render(); });
+document.getElementById("sortSelect").addEventListener("change", e=>{ state.sort = e.target.value; render(); });
+
+const backupToggle = document.getElementById("backupToggle");
+backupToggle.addEventListener("click", ()=>{
+  const open = backupToggle.getAttribute("aria-expanded")==="true";
+  backupToggle.setAttribute("aria-expanded", String(!open));
+  document.getElementById("backupWrap").classList.toggle("open", !open);
+});
+
+populateNicheSelect();
+render();
+</script>
+</body>
+</html>
