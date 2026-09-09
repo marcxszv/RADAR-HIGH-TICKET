@@ -14,6 +14,7 @@
   --accent:#A6631F; --accent-ink:#7A480F; --accent-soft:#F1E4D2; --accent-soft-line:#E3CFA9;
   --hot:#B23A2A; --hot-soft:#FBE7E3; --hot-line:#EEC3B9;
   --warm:#A87418; --warm-soft:#F7EFD8; --warm-line:#E8D6A0;
+  --medium:#3D6E8C; --medium-soft:#E2ECF1; --medium-line:#BAD0DC;
   --backup:#6F756A; --backup-soft:#E9EAE3; --backup-line:#D3D5C9;
   --good:#3E7D4C; --good-soft:#E3F0E4;
   --shadow: 0 1px 2px rgba(26,28,25,.04), 0 8px 24px -12px rgba(26,28,25,.18);
@@ -28,6 +29,7 @@
     --accent:#D6934D; --accent-ink:#F0B876; --accent-soft:#3A2C18; --accent-soft-line:#59431F;
     --hot:#E07A64; --hot-soft:#3B211B; --hot-line:#5C3226;
     --warm:#E0B450; --warm-soft:#3A2E15; --warm-line:#5A461D;
+    --medium:#7FB3D5; --medium-soft:#1C2C36; --medium-line:#2E4756;
     --backup:#9CA191; --backup-soft:#262820; --backup-line:#383B2E;
     --good:#7FC08D; --good-soft:#1E2E1F;
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.55);
@@ -87,10 +89,21 @@ button{ font-family:inherit; }
 .spacer{ flex:1; }
 .sortbar{ display:flex; align-items:center; gap:8px; }
 
+/* view tabs (menu inicial) */
+.view-tabs{ display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+.view-tab{ display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); border-radius:var(--radius); padding:11px 16px; font-size:13.5px; font-weight:600; cursor:pointer; transition:.12s; box-shadow:var(--shadow); }
+.view-tab:hover{ border-color:var(--line-strong); color:var(--ink); }
+.view-tab.active{ background:var(--ink); color:var(--bg); border-color:var(--ink); }
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .view-tab.active{ background:var(--accent); color:#1A1206; border-color:var(--accent);} }
+:root[data-theme="dark"] .view-tab.active{ background:var(--accent); color:#1A1206; border-color:var(--accent);}
+.view-tab-count{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; font-weight:600; padding:2px 7px; border-radius:100px; background:var(--surface-2); color:var(--ink-faint); }
+.view-tab.active .view-tab-count{ background:rgba(255,255,255,.18); color:inherit; }
+
 /* section headings */
-.section-head{ display:flex; align-items:baseline; gap:10px; margin:8px 0 14px; }
+.section-head{ display:flex; align-items:baseline; gap:10px; margin:8px 0 4px; }
 .section-head h2{ font-family:"Fraunces",serif; font-weight:600; font-size:19px; }
 .section-count{ color:var(--ink-faint); font-size:12.5px; }
+.section-hint{ color:var(--ink-faint); font-size:12.5px; margin:0 0 14px; max-width:760px; line-height:1.5; }
 
 /* grid of cards */
 .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(322px,1fr)); gap:14px; margin-bottom:34px; }
@@ -111,6 +124,7 @@ button{ font-family:inherit; }
 .badge{ font-size:11px; padding:3px 8px; border-radius:100px; font-weight:600; letter-spacing:.01em; border:1px solid transparent; }
 .badge.tier-hot{ background:var(--hot-soft); color:var(--hot); border-color:var(--hot-line); }
 .badge.tier-warm{ background:var(--warm-soft); color:var(--warm); border-color:var(--warm-line); }
+.badge.tier-medium{ background:var(--medium-soft); color:var(--medium); border-color:var(--medium-line); }
 .badge.tier-backup{ background:var(--backup-soft); color:var(--backup); border-color:var(--backup-line); }
 .badge.site-none{ background:var(--good-soft); color:var(--good); }
 .badge.site-weak{ background:var(--warm-soft); color:var(--warm); }
@@ -206,13 +220,19 @@ button{ font-family:inherit; }
       <div class="brand-mark">Radar<span class="dot">·</span>CG</div>
       <div class="brand-sub">Prospecção de landing pages — Campo Grande / MS</div>
     </div>
-    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>67 empresas com ficha completa (50 confirmadas ≥ 8/10, 100% reverificadas no Google Maps nesta revisão) · meta: 50 ✓</div>
+    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>77 empresas com ficha completa — 50 confirmadas ≥ 8/10 (meta: 50 ✓) · 10 medianas 6–7,9 (landing page simples) · 17 backup/arquivadas</div>
   </div>
 
   <div class="kpi-row" id="kpiRow"></div>
 
+  <div class="view-tabs" id="viewTabs">
+    <button class="view-tab active" data-view="main">🔥 Notas 8+<span class="view-tab-count" id="tabCountMain"></span></button>
+    <button class="view-tab" data-view="medium">🟡 Medianas 6–7,9<span class="view-tab-count" id="tabCountMedium"></span></button>
+    <button class="view-tab" data-view="backup">🗂 Backup / Arquivadas<span class="view-tab-count" id="tabCountBackup"></span></button>
+  </div>
+
   <div class="filters" id="filters">
-    <div class="fgroup">
+    <div class="fgroup" id="scoreFilterGroup">
       <span class="fgroup-label">Nota</span>
       <button class="chip active" data-f="score" data-v="8">8+</button>
       <button class="chip" data-f="score" data-v="9">9+</button>
@@ -222,11 +242,13 @@ button{ font-family:inherit; }
       <span class="fgroup-label">Oferta</span>
       <button class="chip active" data-f="offer" data-v="all">Todas</button>
       <button class="chip" data-f="offer" data-v="Landing Page">Landing Page</button>
+      <button class="chip" data-f="offer" data-v="Landing Page Simples">Landing Page Simples</button>
       <button class="chip" data-f="offer" data-v="Catálogo Digital">Catálogo Digital</button>
     </div>
     <div class="fgroup">
       <span class="fgroup-label">Ticket</span>
       <button class="chip active" data-f="ticket" data-v="all">Todos</button>
+      <button class="chip" data-f="ticket" data-v="Médio">Médio</button>
       <button class="chip" data-f="ticket" data-v="Alto">Alto</button>
       <button class="chip" data-f="ticket" data-v="Altíssimo">Altíssimo</button>
     </div>
@@ -248,22 +270,14 @@ button{ font-family:inherit; }
   </div>
 
   <div class="section-head">
-    <h2>Radar principal</h2>
+    <h2 id="sectionTitle">Radar principal</h2>
     <span class="section-count" id="mainCount"></span>
   </div>
+  <p class="section-hint" id="sectionHint"></p>
   <div class="grid" id="mainGrid"></div>
 
-  <button class="backup-toggle" id="backupToggle" aria-expanded="false">
-    <h2>🗂 Backup / Arquivadas</h2>
-    <span class="hint" id="backupHint"></span>
-    <span class="chevron">›</span>
-  </button>
-  <div class="backup-wrap" id="backupWrap">
-    <div class="grid" id="backupGrid"></div>
-  </div>
-
   <div class="footer-note">
-    <b>Metodologia:</b> nota de 0 a 10 = potencial de compra (0–2) + necessidade de landing page (0–2) + ticket do serviço (0–2) + presença digital (0–1,5) + ausência de site próprio (0–1,5) + facilidade de contato direto (0–1). Só entram no radar principal empresas com nota ≥ 8 e evidência cruzada (Instagram, Google, diretórios, imprensa local) confirmando que a empresa fica em Campo Grande/MS e não possui site próprio — apenas Instagram, Facebook, diretórios ou marketplaces. Dado não confirmado nas fontes consultadas aparece como <i>"não encontrado"</i>, nunca como suposição. Esta é a Rodada 1: peço buscas adicionais a qualquer momento para ampliar o radar em direção às 50 empresas.
+    <b>Metodologia:</b> nota de 0 a 10 = potencial de compra (0–2) + necessidade de landing page (0–2) + ticket do serviço (0–2) + presença digital (0–1,5) + ausência de site próprio (0–1,5) + facilidade de contato direto (0–1). Todas as empresas nas três seções têm evidência cruzada (Instagram, Google Maps, diretórios, imprensa local) confirmando que ficam em Campo Grande/MS e não possuem site próprio — apenas Instagram, Facebook, diretórios/agregadores de link ou marketplaces (um domínio próprio, mesmo disfarçado de "diretório", desqualifica o lead). <b>Notas 8+</b> = ticket alto o bastante para a oferta completa de landing page (R$700–2.500+). <b>Medianas 6–7,9</b> = negócios reais e sem site, mas com ticket médio — melhor atendidos por uma landing page simples (R$400–600). <b>Backup/Arquivadas</b> = falta 1 dado para confirmar nota ≥ 8, ou risco reputacional identificado (marcado com ⚠, não recomendado). Dado não confirmado nas fontes consultadas aparece como <i>"não encontrado"</i>, nunca como suposição.
   </div>
 </div>
 
@@ -561,6 +575,266 @@ const LEADS = [
   motivoNota:"Maior audiência entre todos os corretores pesquisados (48k IG), nicho de altíssimo ticket (imóveis rurais), corretor autônomo, nenhum site identificado.",
   faltaConfirmar:"Endereço/escritório físico e avaliações de clientes.",
   sources:[{label:"Instagram @agroimoveisms",url:"https://www.instagram.com/agroimoveisms/"}]
+},
+{
+  id:"otica-emporio", tier:"medium", score:6.8, name:"Ótica Empório dos Óculos",
+  niche:"Óticas", subniche:"Ótica de bairro tradicional", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:47,
+  address:"Av. Afonso Pena, 1778 — Sl 10, Centro, Campo Grande/MS",
+  phone:"(67) 99212-3723", whatsapp:"(67) 99212-3723",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,8 de 5 com 47 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site nem link cadastrado no Google Business — campo \"Adicionar website\" aparece vazio.",
+  digital:"4,8/5 com 47 avaliações confirmadas; tradição desde 1995, negócio familiar; clientes citam ter levado toda a família ao longo dos anos.",
+  scoreBreak:{compra:1.2,lp:1.5,ticket:0.9,digital:0.9,semSite:1.5,contato:0.8},
+  pontosFortes:["47 avaliações confirmadas com nota 4,8","Tradição desde 1995 — quase 30 anos de mercado","Clientela fiel e recorrente (famílias inteiras)"],
+  pontosFracos:["Ticket por venda é médio, não alto — landing page simples é a oferta certa, não algo mais robusto"],
+  dor:"Quase 30 anos de tradição e nota 4,8, mas nenhuma página conta essa história — quem pesquisa \"ótica Centro Campo Grande\" não encontra vocês, só quem já conhece o nome de boca em boca.",
+  oportunidade:"Uma página simples com a história da ótica, serviços (grau, sol, ajustes gratuitos) e botão de WhatsApp — rápida de fazer, rápida de vender.",
+  offerName:"Landing Page Simples de Apresentação",
+  offerStruct:"Hero com a história (\"desde 1995\") → serviços → botão de WhatsApp. Página única, sem necessidade de catálogo completo.",
+  pitch:"Vocês têm quase 30 anos de tradição no Centro e nota 4,8 no Google — mas quem pesquisa uma ótica pela primeira vez não tem como saber disso. Uma página simples, rápida e barata, contando essa história e com botão de WhatsApp, já ajudaria bastante.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples, sem necessidade de catálogo completo de armações."},
+    {q:"Já tenho Instagram/WhatsApp",a:"Eles funcionam bem no dia a dia, mas ninguém te encontra pelo Google com eles. Uma página simples aparece nessa busca e reforça a tradição de vocês."},
+    {q:"Vou pensar",a:"Sem problema — é um investimento pequeno, posso te mostrar como ficaria antes de qualquer decisão."}
+  ],
+  motivoNota:"4,8/5 com 47 avaliações confirmadas, tradição de quase 30 anos, ticket médio (não alto) — perfil ideal para landing page simples de R$400-600.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,8/5, 47 avaliações)",url:"https://www.google.com/maps/search/Otica+Emporio+dos+Oculos+Campo+Grande+MS"}]
+},
+{
+  id:"oticas-especial", tier:"medium", score:6.9, name:"Óticas Especial",
+  niche:"Óticas", subniche:"Ótica de bairro, alto volume", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Média", reviews:316,
+  address:"Av. Afonso Pena, 2081 — Centro (Galeria Dona Neta), Campo Grande/MS",
+  phone:"(67) 99880-3960", whatsapp:"(67) 99880-3960",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,8 de 5 com 316 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas um link wa.link, não um domínio próprio.",
+  digital:"4,8/5 com 316 avaliações confirmadas — volume grande para o setor de óticas; algumas reclamações recentes sobre garantia/troca e sobre o telefone do Google estar desatualizado.",
+  scoreBreak:{compra:1.3,lp:1.4,ticket:0.9,digital:1.3,semSite:1.5,contato:0.5},
+  pontosFortes:["316 avaliações confirmadas — volume grande para óticas","4,8/5 apesar do alto volume de atendimentos"],
+  pontosFracos:["Reclamações recentes sobre garantia/troca e dificuldade de contato pelo telefone listado no Google — vale confirmar o número certo antes de abordar"],
+  dor:"316 avaliações são uma prova social ótima, mas um cliente recente reclamou que não conseguia falar com a loja pelo número do Google — uma página simples com o WhatsApp certo em destaque resolveria esse tipo de atrito de primeiro contato.",
+  oportunidade:"Página simples com contato correto e centralizado (WhatsApp), reduzindo a fricção que aparece nas avaliações recentes.",
+  offerName:"Landing Page Simples de Contato",
+  offerStruct:"Hero com prova social (4,8/316) → serviços → botão de WhatsApp único e sempre atualizado.",
+  pitch:"316 avaliações com nota 4,8 é uma prova social forte, mas vi um comentário recente de um cliente que não conseguiu falar com vocês pelo telefone do Google. Uma página simples, com um único WhatsApp sempre certo em destaque, evita esse tipo de perda de cliente por causa de um número desatualizado.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples de contato e apresentação."},
+    {q:"Já tenho Instagram/WhatsApp",a:"O problema não é ter WhatsApp, é o cliente não achar o número certo. A página resolve isso, com um único ponto de contato sempre atualizado."},
+    {q:"Vou pensar",a:"Sem problema — é um investimento pequeno pra evitar perder clientes por confusão de contato."}
+  ],
+  motivoNota:"4,8/5 com 316 avaliações confirmadas (grande volume), mas nota reduzida por reclamações recentes de atendimento pós-venda e contato — ticket médio, perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir; confirmar se as reclamações recentes foram pontuais.",
+  sources:[{label:"Google Maps (4,8/5, 316 avaliações)",url:"https://www.google.com/maps/search/Oticas+Especial+Campo+Grande+MS"}]
+},
+{
+  id:"otica-vitoria", tier:"medium", score:7.0, name:"Ótica Vitória",
+  niche:"Óticas", subniche:"Ótica de bairro com unidade outlet", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:59,
+  address:"Av. Afonso Pena, 2882 — Centro, Campo Grande/MS",
+  phone:"(67) 3253-9555", whatsapp:"(67) 3253-9555",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,8 de 5 com 59 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas contate.me e beacons.ai, sem domínio próprio.",
+  digital:"4,8/5 com 59 avaliações confirmadas; múltiplas unidades (incluindo uma unidade \"outlet\"); dona responde avaliações pessoalmente, inclusive resolvendo reclamações com transparência.",
+  scoreBreak:{compra:1.3,lp:1.5,ticket:0.9,digital:1.0,semSite:1.5,contato:0.8},
+  pontosFortes:["59 avaliações confirmadas com nota 4,8","Múltiplas unidades, incluindo outlet — bom sinal de negócio estruturado","Proprietária responde e resolve reclamações com transparência"],
+  pontosFracos:["Uma reclamação recente sobre erro na lente, mas resolvida com transparência pela proprietária"],
+  dor:"Com várias unidades e nota 4,8, mas cada loja só existe no Google Maps e num agregador de links — não tem uma página única que apresente a rede toda.",
+  oportunidade:"Página simples apresentando as unidades (incluindo a outlet) com botão de WhatsApp — barata e rápida de produzir.",
+  offerName:"Landing Page Simples Multi-unidade",
+  offerStruct:"Hero → lista de unidades (com a outlet em destaque) → botão de WhatsApp por unidade ou geral.",
+  pitch:"Vocês têm várias unidades, incluindo uma outlet, e nota 4,8 — mas isso está espalhado só entre Google e um link agregador. Uma página simples, que mostre as unidades de um jeito organizado, é rápida de fazer e ajuda quem não sabe que existe a opção outlet.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples de apresentação das unidades."},
+    {q:"Já tenho o link na bio",a:"Um agregador só lista links — não conta a história das unidades nem destaca a outlet. Uma página simples faz isso melhor."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno — posso te mostrar uma prévia."}
+  ],
+  motivoNota:"4,8/5 com 59 avaliações confirmadas, rede de unidades estruturada, ticket médio — perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,8/5, 59 avaliações)",url:"https://www.google.com/maps/search/Otica+Vitoria+Afonso+Pena+Campo+Grande+MS"}]
+},
+{
+  id:"lavanderia-aquarela", tier:"medium", score:6.9, name:"Lavanderia Aquarela",
+  niche:"Serviços Domésticos", subniche:"Lavanderia (pessoa física e uniformes B2B)", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:69,
+  address:"Av. Afonso Pena, 736 — Amambaí, Campo Grande/MS",
+  phone:"(67) 3321-1805", whatsapp:"(67) 3321-1805",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"5,0 de 5 com 69 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas contate.me e Instagram, sem domínio próprio.",
+  digital:"5,0/5 com 69 avaliações confirmadas; clientes recorrentes mensais citados, incluindo lavagem de uniformes de empresas — sinal de receita B2B recorrente, não só pessoa física.",
+  scoreBreak:{compra:1.4,lp:1.5,ticket:0.8,digital:0.9,semSite:1.5,contato:0.8},
+  pontosFortes:["5,0/5 com 69 avaliações confirmadas — nota perfeita","Clientes B2B recorrentes (lavagem de uniformes mensal) — receita mais previsível","Nenhum ponto fraco relevante identificado nas avaliações"],
+  pontosFracos:["Ticket por lavagem individual é baixo — o valor está no volume recorrente, não na venda única"],
+  dor:"Nota perfeita e clientes B2B recorrentes (uniformes), mas nenhuma página explica esse serviço para empresas — só pessoa física acha vocês pelo boca a boca.",
+  oportunidade:"Página simples com dois públicos claros: lavagem do dia a dia (pessoa física) e contrato de uniformes (empresas) — botão de WhatsApp para cada um.",
+  offerName:"Landing Page Simples de Serviços",
+  offerStruct:"Hero → serviços (roupa do dia a dia / uniformes empresariais) → botão de WhatsApp.",
+  pitch:"Vocês já atendem empresas com lavagem mensal de uniformes, além do cliente comum — mas isso não aparece em lugar nenhum além do Instagram. Uma página simples, separando esses dois públicos, ajudaria a atrair mais contratos de uniforme, que é receita recorrente.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples com os dois serviços."},
+    {q:"Já tenho Instagram",a:"Ótimo pra cliente pessoa física, mas empresa que quer fechar contrato de uniforme busca algo mais formal antes de decidir — uma página ajuda nisso."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno — posso te mostrar como ficaria."}
+  ],
+  motivoNota:"5,0/5 com 69 avaliações confirmadas, receita B2B recorrente (uniformes), ticket médio por serviço — perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (5,0/5, 69 avaliações)",url:"https://www.google.com/maps/search/Lavanderia+Aquarela+Campo+Grande+MS"}]
+},
+{
+  id:"a-velochaves", tier:"medium", score:6.8, name:"A Velochaves",
+  niche:"Serviços Automotivos", subniche:"Chaveiro automotivo / velocímetros / eletrônica veicular", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:78,
+  address:"R. Barão do Rio Branco, 610 — Centro, Campo Grande/MS",
+  phone:"(67) 3382-1089", whatsapp:"(67) 3382-1089",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,6 de 5 com 78 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site nem link cadastrado no Google Business — campo \"Adicionar website\" aparece vazio.",
+  digital:"4,6/5 com 78 avaliações confirmadas; especialista com 38 anos de experiência em velocímetros, chaves codificadas, sensores e eletrônica automotiva — nicho técnico com pouca concorrência qualificada.",
+  scoreBreak:{compra:1.3,lp:1.6,ticket:1.0,digital:0.7,semSite:1.5,contato:0.7},
+  pontosFortes:["78 avaliações confirmadas com nota 4,6","38 anos de experiência — especialista reconhecido no nicho","Serviço técnico especializado (velocímetros/eletrônica), pouca concorrência qualificada"],
+  pontosFracos:["Ticket por serviço é médio, ainda que a especialização seja rara"],
+  dor:"38 anos de experiência em um nicho técnico raro, mas nenhuma página explica os serviços especializados (além de cópia de chave) — quem precisa de conserto de velocímetro ou sensor não sabe que esse serviço existe ali.",
+  oportunidade:"Página simples listando os serviços especializados (velocímetros, sensores, chaves codificadas) — isso já diferencia de um chaveiro comum.",
+  offerName:"Landing Page Simples de Serviços Especializados",
+  offerStruct:"Hero → lista de serviços especializados (velocímetro, sensor, chave codificada) → botão de WhatsApp/telefone.",
+  pitch:"38 anos de experiência em velocímetros e eletrônica automotiva é uma especialidade rara — a maioria dos chaveiros não faz isso. Mas hoje, quem pesquisa \"conserto de velocímetro Campo Grande\" não sabe que vocês existem. Uma página simples listando esses serviços especializados mudaria isso.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples listando os serviços especializados."},
+    {q:"Meus clientes já vêm por indicação",a:"Faz sentido, mas quem NÃO te conhece ainda e pesquisa \"conserto de velocímetro\" no Google não te encontra. A página capta esse público novo, além da indicação."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno — posso te mostrar como ficaria."}
+  ],
+  motivoNota:"4,6/5 com 78 avaliações confirmadas, especialização técnica rara (38 anos), ticket médio — perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,6/5, 78 avaliações)",url:"https://www.google.com/maps/search/A+Velochaves+Campo+Grande+MS"}]
+},
+{
+  id:"chaveiro-eletrochaves", tier:"medium", score:7.1, name:"Chaveiro Eletro Chaves",
+  niche:"Serviços Automotivos", subniche:"Chaveiro com oficina móvel", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:120,
+  address:"R. Ana Jacinta de Oliveira, 305 — Jardim Centro Oeste, Campo Grande/MS",
+  phone:"(67) 99202-8932", whatsapp:"(67) 99202-8932",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,9 de 5 com 120 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site nem link cadastrado no Google Business — campo \"Adicionar website\" aparece vazio.",
+  digital:"4,9/5 com 120 avaliações confirmadas; diferencial de oficina móvel (atende no local do cliente) elogiado com frequência nas avaliações.",
+  scoreBreak:{compra:1.4,lp:1.6,ticket:0.9,digital:0.9,semSite:1.5,contato:0.8},
+  pontosFortes:["120 avaliações confirmadas com nota 4,9","Diferencial de oficina móvel — atende o cliente onde ele está","Nenhum ponto fraco relevante identificado nas avaliações"],
+  pontosFracos:["Ticket por serviço é médio (cópia de chave, abertura de porta)"],
+  dor:"Nota 4,9 com um diferencial forte (oficina móvel), mas nenhuma página explica esse diferencial pra quem está numa emergência (trancado fora de casa/carro) pesquisando no Google.",
+  oportunidade:"Página simples destacando o atendimento móvel e a rapidez — ideal para quem pesquisa em momento de urgência.",
+  offerName:"Landing Page Simples de Urgência",
+  offerStruct:"Hero com o diferencial \"atendemos no seu local\" → serviços → botão de WhatsApp/ligação direta.",
+  pitch:"Nota 4,9 com 120 avaliações e um diferencial que poucos chaveiros têm — a oficina móvel. Mas quem está trancado fora de casa e pesquisa no Google, numa emergência, precisa ver isso rápido. Uma página simples, direto ao ponto, com botão de ligação, ajuda muito nesse momento.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples e direta."},
+    {q:"Minhas chamadas já vêm do Google Maps",a:"Sim, mas uma página própria reforça a confiança antes da ligação — em uma emergência, as pessoas preferem quem parece mais preparado."},
+    {q:"Vou pensar",a:"Sem problema — é rápido e barato de fazer, posso te mostrar uma prévia."}
+  ],
+  motivoNota:"4,9/5 com 120 avaliações confirmadas, diferencial de oficina móvel, ticket médio — perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,9/5, 120 avaliações)",url:"https://www.google.com/maps/search/Chaveiro+Eletro+chaves+Campo+Grande+MS"}]
+},
+{
+  id:"sapataria-gs", tier:"medium", score:6.3, name:"Sapataria Oficina do Calçado G&S",
+  niche:"Serviços/Reforma", subniche:"Sapataria e reforma de couro", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Média", reviews:52,
+  address:"R. Maracaju, 1005 — Centro, Campo Grande/MS",
+  phone:"(67) 3346-2565", whatsapp:"(67) 3346-2565",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,8 de 5 com 52 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site nem link cadastrado no Google Business — campo \"Adicionar website\" aparece vazio.",
+  digital:"4,8/5 com 52 avaliações confirmadas; qualidade do trabalho elogiada com frequência; um cliente relatou dificuldade para conseguir contato por telefone/WhatsApp.",
+  scoreBreak:{compra:1.2,lp:1.5,ticket:0.7,digital:0.8,semSite:1.5,contato:0.6},
+  pontosFortes:["52 avaliações confirmadas com nota 4,8","Trabalho de qualidade elogiado com frequência","Dono e equipe respondem avaliações pessoalmente"],
+  pontosFracos:["Relato de dificuldade de contato por telefone/WhatsApp — uma página com números corretos resolveria isso"],
+  dor:"Nota 4,8 com trabalho elogiado, mas um cliente relatou não conseguir contato — sinal de que falta um canal simples e confiável para marcar o serviço.",
+  oportunidade:"Página simples com os números certos de contato (fixo e celular) sempre visíveis, resolvendo a fricção relatada.",
+  offerName:"Landing Page Simples de Contato",
+  offerStruct:"Hero → serviços (reforma de calçados, bolsas, malas) → números de contato certos e visíveis.",
+  pitch:"Vocês têm nota 4,8 e trabalho elogiado, mas um cliente relatou não conseguir falar por telefone. Uma página simples, com os números certos sempre visíveis, evita perder cliente por esse tipo de confusão de contato.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples e direta."},
+    {q:"Já tenho WhatsApp",a:"O problema não é ter WhatsApp, é o cliente não achar o número certo. A página resolve isso, sempre visível e atualizado."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno."}
+  ],
+  motivoNota:"4,8/5 com 52 avaliações confirmadas, mas nota reduzida por relato de dificuldade de contato — ticket médio, perfil de landing page simples focada em resolver esse problema.",
+  faltaConfirmar:"Perfil de Instagram, se existir; qual o número de contato correto e atual.",
+  sources:[{label:"Google Maps (4,8/5, 52 avaliações)",url:"https://www.google.com/maps/search/Sapataria+Oficina+do+Calcado+G%26S+Campo+Grande+MS"}]
+},
+{
+  id:"luxo-verde-floricultura", tier:"medium", score:7.8, name:"Luxo Verde Floricultura",
+  niche:"Alimentação/Presentes", subniche:"Floricultura", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:421,
+  address:"R. Vitório Zeola, 160 — Carandá Bosque, Campo Grande/MS",
+  phone:"(67) 99617-8797", whatsapp:"(67) 99617-8797",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,9 de 5 com 421 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas links do Instagram, sem domínio próprio.",
+  digital:"4,9/5 com 421 avaliações confirmadas — volume excepcional para floricultura; resposta rápida por WhatsApp elogiada com muita frequência.",
+  scoreBreak:{compra:1.5,lp:1.6,ticket:1.0,digital:1.4,semSite:1.5,contato:0.8},
+  pontosFortes:["421 avaliações confirmadas — uma das maiores bases entre negócios de ticket médio do radar","4,9/5 muito consistente","Resposta rápida por WhatsApp elogiada com frequência"],
+  pontosFracos:["Ticket por buquê é médio — o volume de vendas é que compensa"],
+  dor:"421 avaliações com nota 4,9 é uma prova social rara para o setor, mas não existe página que mostre o catálogo de arranjos por ocasião (aniversário, luto, romântico) — só o Instagram.",
+  oportunidade:"Página simples com catálogo por ocasião e botão de WhatsApp para pedido rápido.",
+  offerName:"Landing Page Simples de Catálogo",
+  offerStruct:"Hero com prova social (4,9/421) → arranjos por ocasião → botão de WhatsApp para pedido.",
+  pitch:"421 avaliações com nota 4,9 é uma prova social rara pra uma floricultura — poucos negócios do setor têm isso. Uma página simples, com o catálogo organizado por ocasião e pedido direto pelo WhatsApp, aproveitaria muito melhor essa reputação.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples de catálogo."},
+    {q:"Já tenho Instagram",a:"O Instagram é ótimo, mas quem pesquisa \"floricultura Campo Grande\" no Google não acha vocês — a página aparece nessa busca com o catálogo organizado."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno — posso te mostrar como ficaria usando fotos que vocês já têm."}
+  ],
+  motivoNota:"4,9/5 com 421 avaliações confirmadas (volume excepcional), ticket médio por venda — perfil ideal de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir, e volume de seguidores.",
+  sources:[{label:"Google Maps (4,9/5, 421 avaliações)",url:"https://www.google.com/maps/search/Luxo+Verde+Floricultura+Campo+Grande+MS"}]
+},
+{
+  id:"floricultura-silvestre", tier:"medium", score:7.0, name:"Floricultura Silvestre",
+  niche:"Alimentação/Presentes", subniche:"Floricultura e presentes", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:95,
+  address:"Av. Mato Grosso, 1271 — Centro, Campo Grande/MS",
+  phone:"(67) 98106-5769", whatsapp:"(67) 98106-5769",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,8 de 5 com 95 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas wa.me e Instagram, sem domínio próprio.",
+  digital:"4,8/5 com 95 avaliações confirmadas; frescor das flores e capricho na entrega elogiados com frequência.",
+  scoreBreak:{compra:1.3,lp:1.5,ticket:0.9,digital:1.0,semSite:1.5,contato:0.8},
+  pontosFortes:["95 avaliações confirmadas com nota 4,8","Frescor e capricho elogiados com frequência","Nenhum ponto fraco relevante identificado nas avaliações"],
+  pontosFracos:["Ticket por buquê é médio"],
+  dor:"Nota 4,8 com elogios ao frescor e capricho, mas nenhuma página organiza os produtos e facilita o pedido — só o WhatsApp direto, sem catálogo visual.",
+  oportunidade:"Página simples com fotos dos arranjos mais pedidos e botão de WhatsApp.",
+  offerName:"Landing Page Simples de Catálogo",
+  offerStruct:"Hero → arranjos mais pedidos (fotos) → botão de WhatsApp para pedido.",
+  pitch:"Nota 4,8 com elogios ao frescor das flores — mas hoje, pra ver as opções, o cliente precisa mandar mensagem e esperar resposta. Uma página simples com fotos dos arranjos mais pedidos já ajudaria a pessoa decidir mais rápido, antes mesmo de falar com vocês.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples de catálogo com fotos."},
+    {q:"Já tenho Instagram",a:"O Instagram é ótimo, mas quem pesquisa no Google não acha vocês — a página resolve isso, com o catálogo mais fácil de navegar."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno."}
+  ],
+  motivoNota:"4,8/5 com 95 avaliações confirmadas, ticket médio por venda — perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,8/5, 95 avaliações)",url:"https://www.google.com/maps/search/Floricultura+Silvestre+Flores+e+Presentes+Campo+Grande+MS"}]
+},
+{
+  id:"auto-eletrica-sao-jorge", tier:"medium", score:6.9, name:"Auto Elétrica São Jorge",
+  niche:"Serviços Automotivos", subniche:"Auto elétrica (alternador, motor de partida)", offer:"Landing Page Simples",
+  ticket:"Médio", highTicket:false, contactEase:"Alta", reviews:55,
+  address:"R. Enzo Cianteli, 750 — Jardim Monumento, Campo Grande/MS",
+  phone:"(67) 98151-5725", whatsapp:"(67) 98151-5725",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"5,0 de 5 com 55 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas wa.me, sem domínio próprio.",
+  digital:"5,0/5 com 55 avaliações confirmadas; especialização em alternadores e motores de partida citada com frequência; atendimento rápido mesmo em ponto facultativo elogiado.",
+  scoreBreak:{compra:1.3,lp:1.5,ticket:1.0,digital:0.8,semSite:1.5,contato:0.8},
+  pontosFortes:["55 avaliações confirmadas com nota perfeita 5,0","Especialização técnica (alternador/motor de partida) — nicho com menos concorrência","Atendimento rápido, até em ponto facultativo"],
+  pontosFracos:["Ticket por serviço é médio"],
+  dor:"Nota perfeita numa especialidade técnica (alternador, motor de partida), mas quem tem o carro parado numa emergência elétrica não sabe que vocês existem — só quem já foi indicado.",
+  oportunidade:"Página simples e direta, focada em emergência elétrica automotiva, com botão de ligação/WhatsApp.",
+  offerName:"Landing Page Simples de Urgência Automotiva",
+  offerStruct:"Hero (\"carro não liga? alternador ou motor de partida\") → especialidades → botão de ligação/WhatsApp.",
+  pitch:"Nota 5,0 com 55 avaliações numa especialidade técnica que a maioria das oficinas não domina bem (alternador, motor de partida). Quem fica com o carro parado numa emergência elétrica pesquisa no Google — uma página simples e direta, feita pra esse momento, capturaria esse cliente.",
+  objections:[
+    {q:"Quanto custa?",a:"Entre R$400 e R$600 — uma página simples e direta."},
+    {q:"Meus clientes já vêm por indicação",a:"Faz sentido, mas numa emergência com o carro parado, muita gente pesquisa no Google sem esperar indicação — a página capta esse cliente novo também."},
+    {q:"Vou pensar",a:"Sem problema, é um investimento pequeno."}
+  ],
+  motivoNota:"5,0/5 com 55 avaliações confirmadas, especialização técnica com pouca concorrência qualificada, ticket médio — perfil de landing page simples.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (5,0/5, 55 avaliações)",url:"https://www.google.com/maps/search/Auto+Eletrica+Sao+Jorge+Campo+Grande+MS"}]
 },
 {
   id:"solar-ms", tier:"backup", score:5.8, name:"⚠ Solar MS (risco reputacional)",
@@ -1952,11 +2226,11 @@ let statusMap = loadStatus();
 function getStatus(id){ return statusMap[id] || "Novo"; }
 function setStatus(id, val){ statusMap[id]=val; saveStatus(statusMap); }
 
-const tierLabel = { hot:"🔥 HOT", warm:"🟠 WARM", backup:"⚪ BACKUP" };
+const tierLabel = { hot:"🔥 HOT", warm:"🟠 WARM", medium:"🟡 MEDIANA", backup:"⚪ BACKUP" };
 function tierOfScore(s){ return s>=9?"hot":(s>=8?"warm":"backup"); }
 function fmtScore(s){ return s.toFixed(1); }
 
-let state = { scoreMin:8, offer:"all", ticket:"all", niche:"all", sort:"score_desc" };
+let state = { view:"main", scoreMin:8, offer:"all", ticket:"all", niche:"all", sort:"score_desc" };
 
 function populateNicheSelect(){
   const sel = document.getElementById("nicheSelect");
@@ -1990,7 +2264,7 @@ function filterSort(list, opts={}){
 function siteBadge(l){
   return `<span class="badge site-none">SEM SITE</span>`;
 }
-function scoreColor(l){ return l.tier==="hot" ? "var(--hot)" : (l.tier==="warm" ? "var(--warm)" : "var(--backup)"); }
+function scoreColor(l){ return l.tier==="hot" ? "var(--hot)" : (l.tier==="warm" ? "var(--warm)" : (l.tier==="medium" ? "var(--medium)" : "var(--backup)")); }
 function telLink(phone){
   if(!phone || phone.startsWith("Não encontrado")) return phone;
   const tel = phone.replace(/[^\d+]/g,"");
@@ -2086,17 +2360,27 @@ function cardHTML(l){
   </article>`;
 }
 
-function render(){
-  const filtered = filterSort(LEADS.filter(l=>l.tier!=="backup"));
-  const mainGrid = document.getElementById("mainGrid");
-  document.getElementById("mainCount").textContent = filtered.length + (filtered.length===1?" empresa":" empresas");
-  mainGrid.innerHTML = filtered.length ? filtered.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa com essa combinação de filtros. Ajuste a nota mínima ou o nicho.</div>`;
+const VIEW_META = {
+  main:   { tiers:["hot","warm"], title:"Radar principal · Notas 8+", skipScore:false,
+            hint:"Empresas confirmadas com nota ≥ 8/10 — evidência cruzada de que ficam em Campo Grande/MS, não têm site próprio, e o ticket do serviço justifica uma landing page completa (R$700–2.500+)." },
+  medium: { tiers:["medium"], title:"🟡 Medianas · Notas 6–7,9", skipScore:true,
+            hint:"Empresas reais, sem site confirmado, mas com ticket de serviço médio — perfil ideal para uma landing page simples (R$400–600), não a oferta completa. O filtro de nota acima não afeta esta seção." },
+  backup: { tiers:["backup"], title:"🗂 Backup / Arquivadas", skipScore:true,
+            hint:"Empresas reais, mas falta 1 dado (avaliações/Instagram) para confirmar nota ≥ 8, ou marcadas com ⚠ por risco reputacional (não recomendadas para prospecção). O filtro de nota acima não afeta esta seção." },
+};
 
-  const backups = filterSort(LEADS.filter(l=>l.tier==="backup"), {skipScore:true});
-  document.getElementById("backupGrid").innerHTML = backups.length ? backups.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa arquivada com essa combinação de filtros (o filtro de nota não afeta esta seção).</div>`;
-  const backupTotal = LEADS.filter(l=>l.tier==='backup').length;
-  const riskCount = LEADS.filter(l=>l.tier==='backup' && l.name.startsWith("⚠")).length;
-  document.getElementById("backupHint").textContent = backupTotal + " empresas arquivadas (nota 5,5–7,9) — a maioria são reais mas falta 1 dado pra confirmar nota ≥ 8" + (riskCount ? `; ${riskCount} marcadas com ⚠ têm risco reputacional e não são recomendadas para prospecção` : "") + ". Não são afetadas pelo filtro de nota acima.";
+function render(){
+  const meta = VIEW_META[state.view];
+  const list = filterSort(LEADS.filter(l=>meta.tiers.includes(l.tier)), {skipScore:meta.skipScore});
+  document.getElementById("sectionTitle").textContent = meta.title;
+  document.getElementById("sectionHint").textContent = meta.hint;
+  document.getElementById("mainCount").textContent = list.length + (list.length===1?" empresa":" empresas");
+  document.getElementById("mainGrid").innerHTML = list.length ? list.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa com essa combinação de filtros. Ajuste os filtros acima.</div>`;
+  document.getElementById("scoreFilterGroup").style.display = state.view==="main" ? "flex" : "none";
+
+  document.getElementById("tabCountMain").textContent = LEADS.filter(l=>VIEW_META.main.tiers.includes(l.tier)).length;
+  document.getElementById("tabCountMedium").textContent = LEADS.filter(l=>VIEW_META.medium.tiers.includes(l.tier)).length;
+  document.getElementById("tabCountBackup").textContent = LEADS.filter(l=>VIEW_META.backup.tiers.includes(l.tier)).length;
 
   document.querySelectorAll(".card").forEach(c=>{
     c.addEventListener("click", ()=>openPanel(c.dataset.id));
@@ -2242,12 +2526,12 @@ document.querySelectorAll('.chip[data-f="ticket"]').forEach(b=>b.addEventListene
 document.getElementById("nicheSelect").addEventListener("change", e=>{ state.niche = e.target.value; render(); });
 document.getElementById("sortSelect").addEventListener("change", e=>{ state.sort = e.target.value; render(); });
 
-const backupToggle = document.getElementById("backupToggle");
-backupToggle.addEventListener("click", ()=>{
-  const open = backupToggle.getAttribute("aria-expanded")==="true";
-  backupToggle.setAttribute("aria-expanded", String(!open));
-  document.getElementById("backupWrap").classList.toggle("open", !open);
-});
+document.querySelectorAll(".view-tab").forEach(b=>b.addEventListener("click", ()=>{
+  document.querySelectorAll(".view-tab").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  state.view = b.dataset.view;
+  render();
+}));
 
 populateNicheSelect();
 render();
