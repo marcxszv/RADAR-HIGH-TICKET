@@ -206,7 +206,7 @@ button{ font-family:inherit; }
       <div class="brand-mark">Radar<span class="dot">·</span>CG</div>
       <div class="brand-sub">Prospecção de landing pages — Campo Grande / MS</div>
     </div>
-    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>36 empresas com ficha completa (25 confirmadas ≥ 8/10, maioria com telefone e avaliações verificados no Google Maps) · meta: 50</div>
+    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>39 empresas com ficha completa (25 confirmadas ≥ 8/10, maioria com telefone e avaliações verificados no Google Maps) · meta: 50</div>
   </div>
 
   <div class="kpi-row" id="kpiRow"></div>
@@ -1136,6 +1136,72 @@ const LEADS = [
   motivoNota:"Quase lá: 4,3/5 com 169 avaliações confirmadas, mas uma avaliação recente sugere possível mudança na operação — confirmar antes de abordar.",
   faltaConfirmar:"Se o espaço ainda opera normalmente para eventos (uma avaliação recente sugere descontinuidade do day-use).",
   sources:[{label:"Google Maps (4,3/5, 169 avaliações)",url:"https://www.google.com/maps/search/Est%C3%A2ncia+Sol+Ip%C3%AA+Campo+Grande+MS"}]
+},
+{
+  id:"chacara-recanto-amigos", tier:"backup", score:7.5, name:"Chácara Recanto dos Amigos",
+  niche:"Eventos", subniche:"Chácara para eventos e lazer", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Média", reviews:90,
+  address:"Av. Zilá Corrêa Machado — Morada do Sol, Campo Grande/MS",
+  phone:"(67) 99113-1525", whatsapp:"(67) 99113-1525",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,7 de 5 com 90 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para o Facebook.",
+  digital:"4,7/5 com 90 avaliações confirmadas; cozinha industrial, cervejeiras, churrasqueira grande, piscina, campo de futebol e até animais soltos no espaço.",
+  scoreBreak:{compra:1.4,lp:1.5,ticket:1.4,digital:1.1,semSite:1.5,contato:0.6},
+  pontosFortes:["4,7/5 com 90 avaliações confirmadas","Estrutura completa para festas e lazer em família"],
+  pontosFracos:["Ticket por locação é moderado, não altíssimo"],
+  dor:"90 avaliações positivas comprovam a demanda, mas só existe um link de Facebook — não há página que mostre fotos organizadas e disponibilidade.",
+  oportunidade:"Página com fotos da estrutura e formulário de reserva por data.",
+  offerName:"Landing Page de Locação de Espaço",
+  offerStruct:"Hero com a chácara → estrutura (piscina, campo, churrasqueira) → formulário de reserva.",
+  pitch:"90 avaliações com nota 4,7 mostram que o espaço já conquistou quem visitou. Uma página com fotos organizadas ajudaria a converter esse interesse sem depender só do Facebook.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que poucas locações de fim de semana."}],
+  motivoNota:"Quase lá: 4,7/5 com 90 avaliações confirmadas, mas ticket por locação é moderado.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,7/5, 90 avaliações)",url:"https://www.google.com/maps/search/Ch%C3%A1cara+Recanto+dos+Amigos+Campo+Grande+MS"}]
+},
+{
+  id:"chacara-confraria-amigos", tier:"backup", score:7.4, name:"Chácara Confraria dos Amigos",
+  niche:"Eventos", subniche:"Chácara para eventos e confraternizações", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Alta", reviews:35,
+  address:"R. Lise Rose, 1768-2158 — Jardim Veraneio, Campo Grande/MS",
+  phone:"(67) 3253-4850", whatsapp:"(67) 3253-4850",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,9 de 5 com 35 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — Google Business linka apenas para linktr.ee (agregador de link).",
+  digital:"4,9/5 com 35 avaliações confirmadas; proprietário responde pessoalmente quase toda avaliação, sempre com muito cuidado.",
+  scoreBreak:{compra:1.4,lp:1.5,ticket:1.3,digital:1.0,semSite:1.5,contato:0.7},
+  pontosFortes:["4,9/5 — uma das notas mais altas entre as chácaras pesquisadas","Proprietário muito engajado e acessível"],
+  pontosFracos:["Base de avaliações ainda pequena (35)","Ticket por locação é moderado"],
+  dor:"Nota quase perfeita (4,9) mas usa só um link agregador — não existe página própria que capitalize essa reputação com fotos e disponibilidade.",
+  oportunidade:"Página com fotos do espaço, a nota em destaque e formulário de reserva.",
+  offerName:"Landing Page de Locação de Espaço",
+  offerStruct:"Hero com a chácara e nota 4,9 → estrutura → formulário de reserva.",
+  pitch:"Nota 4,9 é praticamente perfeita — poucas chácaras chegam nesse nível. Uma página própria, no lugar do link agregador, colocaria essa reputação em primeiro plano.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que poucas locações de fim de semana."}],
+  motivoNota:"Quase lá: 4,9/5 confirmado (nota excelente), mas base de avaliações pequena e ticket moderado.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,9/5, 35 avaliações)",url:"https://www.google.com/maps/search/Ch%C3%A1cara+Confraria+dos+Amigos+Campo+Grande+MS"}]
+},
+{
+  id:"estancia-aconchego", tier:"backup", score:7.7, name:"Estância Aconchego",
+  niche:"Eventos", subniche:"Chácara para eventos e locação", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:false, contactEase:"Baixa", reviews:209,
+  address:"Rua do Boiadeiro — Conj. Res. Octávio Pecora, Campo Grande/MS",
+  phone:"(67) 99983-3405", whatsapp:"(67) 99983-3405",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,6 de 5 com 209 avaliações (confirmado no Google Maps)",
+  site:"none", siteNote:"Nenhum site próprio identificado — ficha do Google Business nem foi reivindicada pela empresa.",
+  digital:"4,6/5 com 209 avaliações confirmadas; dormitório, espaço gourmet, piscina, campo de futebol e parquinho.",
+  scoreBreak:{compra:1.5,lp:1.6,ticket:1.4,digital:1.2,semSite:1.5,contato:0.5},
+  pontosFortes:["4,6/5 com 209 avaliações confirmadas — base grande","Estrutura completa (dormitório, gourmet, piscina, campo, parquinho)"],
+  pontosFracos:["Ficha do Google nem foi reivindicada — baixo investimento em presença digital até agora","Uma avaliação recente reclama de atendimento do zelador"],
+  dor:"209 avaliações comprovam forte demanda, mas a empresa nem reivindicou a própria ficha no Google — presença digital própria é praticamente inexistente.",
+  oportunidade:"Página institucional simples já mudaria a primeira impressão de quem pesquisa o nome no Google.",
+  offerName:"Landing Page Institucional de Locação",
+  offerStruct:"Hero com a chácara → estrutura completa → formulário de reserva.",
+  pitch:"209 avaliações com nota 4,6 é uma base enorme de prova social que hoje não tem nenhuma vitrine própria. Uma página simples já resolveria isso.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500 — menos que poucas locações de fim de semana."}],
+  motivoNota:"Quase lá: 4,6/5 com 209 avaliações confirmadas (base grande), mas nenhuma presença digital própria e ticket moderado.",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,6/5, 209 avaliações)",url:"https://www.google.com/maps/search/Estancia+Aconchego+Campo+Grande+MS"}]
 }
 ];
 
