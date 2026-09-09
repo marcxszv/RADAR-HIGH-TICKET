@@ -254,7 +254,7 @@ button{ font-family:inherit; }
   <div class="grid" id="mainGrid"></div>
 
   <button class="backup-toggle" id="backupToggle" aria-expanded="false">
-    <h2>🗂 Em validação — quase lá</h2>
+    <h2>🗂 Backup / Arquivadas</h2>
     <span class="hint" id="backupHint"></span>
     <span class="chevron">›</span>
   </button>
@@ -1967,9 +1967,9 @@ function populateNicheSelect(){
 function ticketRank(t){ return {"Baixo":1,"Médio":2,"Médio-Alto":3,"Alto":4,"Altíssimo":5}[t]||0; }
 function contactRank(c){ return {"Baixa":1,"Média":2,"Alta":3}[c]||0; }
 
-function filterSort(list){
+function filterSort(list, opts={}){
   let out = list.filter(l=>{
-    if(l.score < state.scoreMin) return false;
+    if(!opts.skipScore && l.score < state.scoreMin) return false;
     if(state.offer!=="all" && l.offer!==state.offer) return false;
     if(state.ticket!=="all" && l.ticket!==state.ticket) return false;
     if(state.niche!=="all" && l.niche!==state.niche) return false;
@@ -2092,9 +2092,11 @@ function render(){
   document.getElementById("mainCount").textContent = filtered.length + (filtered.length===1?" empresa":" empresas");
   mainGrid.innerHTML = filtered.length ? filtered.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa com essa combinação de filtros. Ajuste a nota mínima ou o nicho.</div>`;
 
-  const backups = filterSort(LEADS.filter(l=>l.tier==="backup"));
-  document.getElementById("backupGrid").innerHTML = backups.length ? backups.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa em validação com essa combinação de filtros.</div>`;
-  document.getElementById("backupHint").textContent = LEADS.filter(l=>l.tier==='backup').length + " empresas entre 7,0–7,9 — reais, mas falta 1 dado (avaliações/Instagram) para confirmar nota ≥ 8.";
+  const backups = filterSort(LEADS.filter(l=>l.tier==="backup"), {skipScore:true});
+  document.getElementById("backupGrid").innerHTML = backups.length ? backups.map(cardHTML).join("") : `<div class="empty">Nenhuma empresa arquivada com essa combinação de filtros (o filtro de nota não afeta esta seção).</div>`;
+  const backupTotal = LEADS.filter(l=>l.tier==='backup').length;
+  const riskCount = LEADS.filter(l=>l.tier==='backup' && l.name.startsWith("⚠")).length;
+  document.getElementById("backupHint").textContent = backupTotal + " empresas arquivadas (nota 5,5–7,9) — a maioria são reais mas falta 1 dado pra confirmar nota ≥ 8" + (riskCount ? `; ${riskCount} marcadas com ⚠ têm risco reputacional e não são recomendadas para prospecção` : "") + ". Não são afetadas pelo filtro de nota acima.";
 
   document.querySelectorAll(".card").forEach(c=>{
     c.addEventListener("click", ()=>openPanel(c.dataset.id));
