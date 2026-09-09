@@ -206,7 +206,7 @@ button{ font-family:inherit; }
       <div class="brand-mark">Radar<span class="dot">·</span>CG</div>
       <div class="brand-sub">Prospecção de landing pages — Campo Grande / MS</div>
     </div>
-    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>65 empresas com ficha completa (48 confirmadas ≥ 8/10, maioria com telefone e avaliações verificados no Google Maps) · meta: 50</div>
+    <div class="meta-line">Pesquisa em andamento · <b id="updatedAt">setembro/2026</b><br>67 empresas com ficha completa (50 confirmadas ≥ 8/10, maioria com telefone e avaliações verificados no Google Maps) · meta: 50 ✓</div>
   </div>
 
   <div class="kpi-row" id="kpiRow"></div>
@@ -603,6 +603,51 @@ const LEADS = [
   motivoNota:"4,7/5 com 229 avaliações confirmadas, diferencial de diversão para toda a família, alto ticket, nenhum site identificado.",
   faltaConfirmar:"Perfil de Instagram, se existir.",
   sources:[{label:"Google Maps (4,7/5, 229 avaliações)",url:"https://www.google.com/maps/search/Buffet+Planeta+A+e+B+Eventos+Campo+Grande+MS"}]
+},
+{
+  id:"botteghe-cafe", tier:"hot", score:8.4, name:"Botteghe Café",
+  niche:"Alimentação", subniche:"Cafeteria de especialidade / brunch", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:true, contactEase:"Alta", reviews:700,
+  address:"R. 15 de Novembro, 2269 — Centro/Jardim dos Estados, Campo Grande/MS",
+  phone:"(67) 99316-0947", whatsapp:"(67) 99316-0947",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,6 de 5 com 700 avaliações (confirmado no Google Maps) — ticket médio de R$40–120 por pessoa",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas um link agregador (linktr.ee), não um domínio próprio.",
+  digital:"4,6/5 com 700 avaliações confirmadas — uma das maiores bases de avaliações do radar; ambiente descrito como \"instagramável\"; ticket médio de R$40–120 por pessoa (bem acima da média de cafeterias).",
+  scoreBreak:{compra:1.5,lp:1.5,ticket:1.5,digital:1.5,semSite:1.3,contato:0.7},
+  pontosFortes:["700 avaliações confirmadas — uma das maiores bases do radar","Ticket médio de R$40-120 por pessoa, acima da média do setor","Ambiente \"instagramável\" com forte apelo visual"],
+  pontosFracos:["Algumas avaliações recentes mencionam inconsistência na qualidade de pratos específicos — vale confirmar se é pontual"],
+  dor:"700 avaliações e um ambiente muito fotografável, mas o único link é um agregador genérico (linktr.ee) que não vende a experiência nem organiza o cardápio de brunch.",
+  oportunidade:"Página própria substituindo o linktr.ee, com o cardápio de brunch, fotos do ambiente e reservas.",
+  offerName:"Landing Page de Experiência e Reservas",
+  offerStruct:"Hero com o ambiente \"instagramável\" → cardápio de brunch → prova social (700 avaliações) → botão de reserva/WhatsApp.",
+  pitch:"700 avaliações é uma prova social gigante, mas hoje o único link de vocês é um agregador genérico que não vende a experiência. Uma página própria, com o cardápio de brunch e fotos do ambiente, converteria muito mais gente pesquisando onde ir.",
+  objections:[{q:"Já tenho o link na bio",a:"Um agregador só lista links — não mostra cardápio, fotos do ambiente nem tem botão de reserva direto. Uma página própria vende a experiência."},{q:"Quanto custa?",a:"Entre R$700 e R$2.500."}],
+  motivoNota:"4,6/5 com 700 avaliações confirmadas (uma das maiores bases do radar), ticket acima da média do setor, apenas link agregador (sem site próprio).",
+  faltaConfirmar:"Perfil de Instagram, se existir.",
+  sources:[{label:"Google Maps (4,6/5, 700 avaliações)",url:"https://www.google.com/maps/search/Botteghe+Cafe+Campo+Grande+MS"}]
+},
+{
+  id:"katarina-coffee-tea", tier:"warm", score:8.1, name:"Katarina Coffee & Tea",
+  niche:"Alimentação", subniche:"Cafeteria de especialidade", offer:"Landing Page",
+  ticket:"Médio-Alto", highTicket:true, contactEase:"Média", reviews:364,
+  address:"R. Chaadi Scaff, 762 — Itanhangá Park, Campo Grande/MS",
+  phone:"Não encontrado nas fontes consultadas — Google Business não lista telefone direto",
+  whatsapp:"Não encontrado nas fontes consultadas",
+  instagram:{handle:"Não confirmado com segurança nas buscas", followers:null}, google:"4,7 de 5 com 364 avaliações (confirmado no Google Maps) — ticket médio de R$40–80 por pessoa",
+  site:"none", siteNote:"Sem site próprio — Google Business mostra apenas um link de reserva via plataforma dguests.com (ferramenta de reservas de terceiros) e Instagram, sem domínio próprio.",
+  digital:"4,7/5 com 364 avaliações confirmadas; ambiente descrito como sofisticado e acolhedor; ticket médio de R$40-80 por pessoa.",
+  scoreBreak:{compra:1.4,lp:1.5,ticket:1.4,digital:1.4,semSite:1.3,contato:0.1},
+  pontosFortes:["364 avaliações confirmadas com nota 4,7","Ambiente descrito como sofisticado — bom encaixe para posicionamento premium","Ticket médio acima da média do setor"],
+  pontosFracos:["Telefone direto não encontrado no Google Business — depende só da plataforma de reservas dguests, o que dificulta a facilidade de contato"],
+  dor:"364 avaliações e um ambiente sofisticado, mas depende de uma plataforma de reservas de terceiros (dguests) — não existe uma página própria que mostre o cardápio e a experiência antes de reservar.",
+  oportunidade:"Página própria com o cardápio, fotos do ambiente sofisticado e botão de reserva — reduzindo a dependência da plataforma de terceiros.",
+  offerName:"Landing Page de Experiência e Reservas",
+  offerStruct:"Hero com o ambiente sofisticado → cardápio → prova social (364 avaliações) → botão de reserva.",
+  pitch:"364 avaliações com nota 4,7 mostram que a experiência já é ótima — mas hoje ela depende de uma plataforma de reservas de terceiros para o primeiro contato. Uma página própria, com o cardápio e fotos do ambiente, reforçaria essa marca antes mesmo da reserva.",
+  objections:[{q:"Quanto custa?",a:"Entre R$700 e R$2.500."}],
+  motivoNota:"4,7/5 com 364 avaliações confirmadas, ambiente sofisticado, apenas plataforma de reservas de terceiros (sem site próprio) — nota levemente reduzida pela ausência de telefone direto e facilidade de contato limitada.",
+  faltaConfirmar:"Telefone direto e perfil de Instagram com seguidores.",
+  sources:[{label:"Google Maps (4,7/5, 364 avaliações)",url:"https://www.google.com/maps/search/Katarina+Coffee+and+Tea+Campo+Grande+MS"}]
 },
 {
   id:"ana-realizee-cerimonial", tier:"hot", score:8.4, name:"Ana Realizee Assessoria e Cerimonial",
